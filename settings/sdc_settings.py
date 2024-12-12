@@ -2,11 +2,11 @@ from PyQt5.QtCore import QSettings
 from enum import Enum
 
 # Versioning support using versioneer
-from . import _version
+import _version
 __version__ = _version.get_versions()['version']
 
-COMPANY_NAME = "Spectrum GmbH"
-APP_NAME_SHORT = "SpcDDSControl"
+COMPANY_NAME = "Spectrum Instrumentation GmbH"
+APP_NAME_SHORT = "spc-dds-control"
 APP_NAME_LONG = "Spectrum DDS Control"
 
 SETUP_EXT = "sdc"
@@ -28,29 +28,20 @@ class SDC_Settings:
     m_sSetupFilePath = ""
     m_bSaveOnExit = False
     m_sVersion = __version__
-    m_sInternalSetupFilePath = "~spcddscontrol.{}".format(SETUP_EXT)
+    m_sInternalSetupFilePath = "~spcmddscontrol.{}".format(SETUP_EXT)
 
     # Singleton function
     def __new__(cls, *args, **kwargs):
         #print("SDC_Settings::__new__")
         if not cls._instance:
-            #print("SDC_Settings::__new__ - creating new instance") # works this only happens once!
+            #print("SDC_Settings::__new__ - creating new instance") # works: this only happens once!
             cls._instance = super(SDC_Settings, cls).__new__(cls, *args, **kwargs)
             cls._instance.vLoadSettings()
         return cls._instance
     
     def __init__(self):
+        #print("SDC_Settings::__init__")
         pass
-        #print("SDC_Settings::__init__ - bSaveOnExit: {}".format(self.m_bSaveOnExit))
-        # self.m_sSetupFilePath = ""
-        # self.m_bSaveOnExit = False
-
-        # self.m_sVersion = "0.0.1" # TODO generate version number automatically
-        
-        # create internal setup file path
-        # self.m_sInternalSetupFilePath = "~spcddscontrol.{}".format(SETUP_EXT)
-        
-        # self.vLoadSettings()
 
     # ********************************************************************************************************
     # ***** Private Destructor

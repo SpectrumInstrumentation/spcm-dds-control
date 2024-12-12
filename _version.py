@@ -53,7 +53,7 @@ def get_config() -> VersioneerConfig:
     cfg.style = "pep440"
     cfg.tag_prefix = "v"
     cfg.parentdir_prefix = "None"
-    cfg.versionfile_source = "src/spcm/_version.py"
+    cfg.versionfile_source = "_version.py"
     cfg.verbose = False
     return cfg
 
