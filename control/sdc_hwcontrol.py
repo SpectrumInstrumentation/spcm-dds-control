@@ -38,8 +38,11 @@ class SDC_HwControl():
 
         for dwDevIdx in range(MAX_SPCM_DEVICES):
             oDeviceName = "/dev/spcm{}".format(dwDevIdx)
-            oDevice = spcm.Card(oDeviceName, throw_error=False)
-            oDevice.__enter__()
+            oDevice = spcm.Card(oDeviceName, throw_error=True)
+            try:
+                oDevice.open()
+            except spcm.SpcmDeviceNotFound as e:
+                continue
             if oDevice:
                 if self.bIsDeviceDDS(oDevice):
                     poDevice = SDC_SpcDevice(oDevice)
@@ -78,19 +81,17 @@ class SDC_HwControl():
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def dwGetCoreInfos (self, poCoreSettings) -> int:
+    def dwGetCoreInfos(self, poCoreSettings):
         #print("SDC_HwControl::dwGetCoreInfos")
-        dwError = 0
-
         if not self.m_poDevice:
-            return dwError
+            return
 
-        dMin = 0 #self.m_poDevice.m_oDDS.avail_amp_min() # TODO this is a bug in the driver
+        dMin = self.m_poDevice.m_oDDS.avail_amp_min()
         dMax = self.m_poDevice.m_oDDS.avail_amp_max()
         dStep = self.m_poDevice.m_oDDS.avail_amp_step()
         poCoreSettings.vSetAmplitude(SDC_Value(dMin, dMax, dStep))
         
-        dMin = 0 #self.m_poDevice.m_oDDS.avail_freq_min() # TODO this is a bug in the driver
+        dMin = 0 # self.m_poDevice.m_oDDS.avail_freq_min() # TODO this is a bug in the driver
         dMax = self.m_poDevice.m_oDDS.avail_freq_max()
         dStep = self.m_poDevice.m_oDDS.avail_freq_step()
         poCoreSettings.vSetFrequency(SDC_Value(dMin, dMax, dStep))
@@ -100,46 +101,53 @@ class SDC_HwControl():
         dStep = self.m_poDevice.m_oDDS.avail_phase_step()
         poCoreSettings.vSetPhase(SDC_Value(dMin, dMax, dStep))
 
-        return dwError
-
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def dwSetAmplitude (self, dwCoreIndex : int, pdValue : float) -> int:
+    def dwSetAmplitude(self, dwCoreIndex : int, pdValue : float) -> object:
         #print("SDC_HwControl::dwSetAmplitude")
-        dwError = 0
-        self.m_poDevice.m_oDDS.amp(dwCoreIndex, pdValue)
-        if self.m_bHwIsRunning:
-            self.m_poDevice.m_oDDS.exec_now()
-            self.m_poDevice.m_oDDS.write_to_card()
+        oError = None
+        try:
+            self.m_poDevice.m_oDDS.amp(dwCoreIndex, pdValue)
+            if self.m_bHwIsRunning:
+                self.m_poDevice.m_oDDS.exec_now()
+                self.m_poDevice.m_oDDS.write_to_card()
+        except spcm.SpcmException as e:
+            oError = e.error
 
-        return dwError
+        return oError
 
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def dwSetFrequency(self, dwCoreIndex : int, pdValue : float) -> int:
+    def dwSetFrequency(self, dwCoreIndex : int, pdValue : float) -> object:
         #print("SDC_HwControl::dwSetFrequency")
-        dwError = 0
-        self.m_poDevice.m_oDDS.freq(dwCoreIndex, pdValue)
-        if self.m_bHwIsRunning:
-            self.m_poDevice.m_oDDS.exec_now()
-            self.m_poDevice.m_oDDS.write_to_card()
+        oError = None
+        try:
+            self.m_poDevice.m_oDDS.freq(dwCoreIndex, pdValue)
+            if self.m_bHwIsRunning:
+                self.m_poDevice.m_oDDS.exec_now()
+                self.m_poDevice.m_oDDS.write_to_card()
+        except spcm.SpcmException as e:
+            oError = e.error
 
-        return dwError
+        return oError
 
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def dwSetPhase(self, dwCoreIndex : int, pdValue : float) -> int:
+    def dwSetPhase(self, dwCoreIndex : int, pdValue : float) -> object:
         #print("SDC_HwControl::dwSetPhase")
-        dwError = 0
-        self.m_poDevice.m_oDDS.phase(dwCoreIndex, pdValue)
-        if self.m_bHwIsRunning:
-            self.m_poDevice.m_oDDS.exec_now()
-            self.m_poDevice.m_oDDS.write_to_card()
+        oError = None
+        try:
+            self.m_poDevice.m_oDDS.phase(dwCoreIndex, pdValue)
+            if self.m_bHwIsRunning:
+                self.m_poDevice.m_oDDS.exec_now()
+                self.m_poDevice.m_oDDS.write_to_card()
+        except spcm.SpcmException as e:
+            oError = e.error
 
-        return dwError
+        return oError
 
     # ********************************************************************************************************
     # ***** Public Method
@@ -151,105 +159,113 @@ class SDC_HwControl():
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def dwSetCoreConnections(self) -> int:
+    def dwSetCoreConnections(self) -> object:
         #print("SDC_HwControl::dwSetCoreConnections")
-        dwError = 0
+        oError = None
 
-        if not self.m_poDevice.bIsDDS50():
-            llMaskCoreGroup1 = spcm.SPCM_DDS_CORE8  | spcm.SPCM_DDS_CORE9  | spcm.SPCM_DDS_CORE10 | spcm.SPCM_DDS_CORE11;
-            llMaskCoreGroup2 = spcm.SPCM_DDS_CORE12 | spcm.SPCM_DDS_CORE13 | spcm.SPCM_DDS_CORE14 | spcm.SPCM_DDS_CORE15;
-            llMaskCoreGroup3 = spcm.SPCM_DDS_CORE16 | spcm.SPCM_DDS_CORE17 | spcm.SPCM_DDS_CORE18 | spcm.SPCM_DDS_CORE19;
+        try:
+            if not self.m_poDevice.bIsDDS50():
+                llMaskCoreGroup1 = spcm.SPCM_DDS_CORE8  | spcm.SPCM_DDS_CORE9  | spcm.SPCM_DDS_CORE10 | spcm.SPCM_DDS_CORE11;
+                llMaskCoreGroup2 = spcm.SPCM_DDS_CORE12 | spcm.SPCM_DDS_CORE13 | spcm.SPCM_DDS_CORE14 | spcm.SPCM_DDS_CORE15;
+                llMaskCoreGroup3 = spcm.SPCM_DDS_CORE16 | spcm.SPCM_DDS_CORE17 | spcm.SPCM_DDS_CORE18 | spcm.SPCM_DDS_CORE19;
 
-            if self.m_llConnectionMaskCh1 & llMaskCoreGroup1:
-                self.m_llConnectionMaskCh1 |= llMaskCoreGroup1
-            else:
-                self.m_llConnectionMaskCh0 |= llMaskCoreGroup1
+                if self.m_llConnectionMaskCh1 & llMaskCoreGroup1:
+                    self.m_llConnectionMaskCh1 |= llMaskCoreGroup1
+                else:
+                    self.m_llConnectionMaskCh0 |= llMaskCoreGroup1
 
-            if self.m_llConnectionMaskCh2 & llMaskCoreGroup2:
-                self.m_llConnectionMaskCh2 |= llMaskCoreGroup2
-            else:
-                self.m_llConnectionMaskCh0 |= llMaskCoreGroup2
+                if self.m_llConnectionMaskCh2 & llMaskCoreGroup2:
+                    self.m_llConnectionMaskCh2 |= llMaskCoreGroup2
+                else:
+                    self.m_llConnectionMaskCh0 |= llMaskCoreGroup2
 
-            if self.m_llConnectionMaskCh3 & llMaskCoreGroup3:
-                self.m_llConnectionMaskCh3 |= llMaskCoreGroup3
-            else:
-                self.m_llConnectionMaskCh0 |= llMaskCoreGroup3
-        
-        dwNumCh = int(self.m_poDevice.lGetNumMaxChannels())
-
-        self.m_poDevice.m_oDDS.cores_on_channel(0, self.m_llConnectionMaskCh0)
-        if dwNumCh > 1:
-            self.m_poDevice.m_oDDS.cores_on_channel(1, self.m_llConnectionMaskCh1)
-        if dwNumCh > 2:
-            self.m_poDevice.m_oDDS.cores_on_channel(2, self.m_llConnectionMaskCh2)
-            self.m_poDevice.m_oDDS.cores_on_channel(3, self.m_llConnectionMaskCh3)
-        
-        return dwError
-
-    # ********************************************************************************************************
-    # ***** Public Method
-    # ********************************************************************************************************
-    def dwDoGeneralSetup (self) -> int:
-        #print("SDC_HwControl::dwDoGeneralSetup")
-        dwError = 0
-
-        dwNumCh = int(self.m_poDevice.lGetNumMaxChannels())
-
-        #print(f"{dwNumCh = }")
-        #print(f"{len(self.m_poDevice.m_oChannels) = }")
-        
-        self.m_poDevice.m_oChannels.channels_enable(enable_all=True)
-        self.m_poDevice.m_oDevice.card_mode(spcm.SPC_REP_STD_DDS)
-        self.m_poDevice.m_oClock.mode(spcm.SPC_CM_INTPLL)
-        self.m_poDevice.m_oTrigger.or_mask(spcm.SPC_TMASK_NONE)
-
-        #print(f"{len(self.m_poDevice.m_oChannels) = }")
-
-        # setup the channels
-        for dwChIdx in range(dwNumCh):
-            oChSetting = self.m_poDevice.oGetChSettings(dwChIdx)
+                if self.m_llConnectionMaskCh3 & llMaskCoreGroup3:
+                    self.m_llConnectionMaskCh3 |= llMaskCoreGroup3
+                else:
+                    self.m_llConnectionMaskCh0 |= llMaskCoreGroup3
             
-            self.m_poDevice.m_oChannels[dwChIdx].amp(oChSetting.lGetOutputRange_mV())
-            self.m_poDevice.m_oChannels[dwChIdx].filter(oChSetting.lGetFilter())
-            self.m_poDevice.m_oChannels[dwChIdx].enable(oChSetting.lOutputEnabled())
-
-        self.m_poDevice.m_oDevice.write_setup()
-        self.m_poDevice.m_oDDS.reset()
-
-        return dwError
+            dwNumCh = int(self.m_poDevice.lGetNumMaxChannels())
+            self.m_poDevice.m_oDDS.cores_on_channel(0, self.m_llConnectionMaskCh0)
+            if dwNumCh > 1:
+                self.m_poDevice.m_oDDS.cores_on_channel(1, self.m_llConnectionMaskCh1)
+            if dwNumCh > 2:
+                self.m_poDevice.m_oDDS.cores_on_channel(2, self.m_llConnectionMaskCh2)
+                self.m_poDevice.m_oDDS.cores_on_channel(3, self.m_llConnectionMaskCh3)
+        except spcm.SpcmException as e:
+            oError = e.error
+        
+        return oError
 
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def dwDoCoreSetup (self, poCoreSettings) -> int:
+    def dwDoGeneralSetup (self) -> object:
+        #print("SDC_HwControl::dwDoGeneralSetup")
+        oError = None
+
+        try:
+            dwNumCh = int(self.m_poDevice.lGetNumMaxChannels())
+
+            #print(f"{dwNumCh = }")
+            #print(f"{len(self.m_poDevice.m_oChannels) = }")
+            
+            self.m_poDevice.m_oChannels.channels_enable(enable_all=True)
+            self.m_poDevice.m_oDevice.card_mode(spcm.SPC_REP_STD_DDS)
+            self.m_poDevice.m_oClock.mode(spcm.SPC_CM_INTPLL)
+            self.m_poDevice.m_oTrigger.or_mask(spcm.SPC_TMASK_NONE)
+
+            #print(f"{len(self.m_poDevice.m_oChannels) = }")
+
+            # setup the channels
+            for dwChIdx in range(dwNumCh):
+                oChSetting = self.m_poDevice.oGetChSettings(dwChIdx)
+                
+                self.m_poDevice.m_oChannels[dwChIdx].amp(oChSetting.lGetOutputRange_mV())
+                self.m_poDevice.m_oChannels[dwChIdx].filter(oChSetting.lGetFilter())
+                self.m_poDevice.m_oChannels[dwChIdx].enable(oChSetting.lOutputEnabled())
+
+            self.m_poDevice.m_oDevice.write_setup()
+            self.m_poDevice.m_oDDS.reset()
+        except spcm.SpcmException as e:
+            oError = e.error
+
+        return oError
+
+    # ********************************************************************************************************
+    # ***** Public Method
+    # ********************************************************************************************************
+    def dwDoCoreSetup (self, poCoreSettings) -> object:
         #print("SDC_HwControl::dwDoCoreSetup")
-        dwError = 0
+        oError = None
 
-        lCoreIndex = poCoreSettings.lGetCoreIndex()
-        llBitMask = 0x1 << lCoreIndex
+        try:
+            lCoreIndex = poCoreSettings.lGetCoreIndex()
+            llBitMask = 0x1 << lCoreIndex
 
-        self.m_poDevice.m_oDDS.amp(lCoreIndex, poCoreSettings.oGetAmplitude().dGetValue())
-        self.m_poDevice.m_oDDS.freq(lCoreIndex, poCoreSettings.oGetFrequency().dGetValue())
-        self.m_poDevice.m_oDDS.phase(lCoreIndex, poCoreSettings.oGetPhase().dGetValue())
+            self.m_poDevice.m_oDDS.amp(lCoreIndex, poCoreSettings.oGetAmplitude().dGetValue())
+            self.m_poDevice.m_oDDS.freq(lCoreIndex, poCoreSettings.oGetFrequency().dGetValue())
+            self.m_poDevice.m_oDDS.phase(lCoreIndex, poCoreSettings.oGetPhase().dGetValue())
 
-        # set connection masks
-        if poCoreSettings.lGetChannel() == 0:
-            self.m_llConnectionMaskCh0 |= llBitMask
-        elif poCoreSettings.lGetChannel() == 1:
-            self.m_llConnectionMaskCh1 |= llBitMask
-        elif poCoreSettings.lGetChannel() == 2:
-            self.m_llConnectionMaskCh2 |= llBitMask
-        elif poCoreSettings.lGetChannel() == 3:
-            self.m_llConnectionMaskCh3 |= llBitMask
+            # set connection masks
+            if poCoreSettings.lGetChannel() == 0:
+                self.m_llConnectionMaskCh0 |= llBitMask
+            elif poCoreSettings.lGetChannel() == 1:
+                self.m_llConnectionMaskCh1 |= llBitMask
+            elif poCoreSettings.lGetChannel() == 2:
+                self.m_llConnectionMaskCh2 |= llBitMask
+            elif poCoreSettings.lGetChannel() == 3:
+                self.m_llConnectionMaskCh3 |= llBitMask
+        except spcm.SpcmException as e:
+            oError = e.error
         
-        return dwError
+        return oError
 
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
     def dwStart (self):
         #print("SDC_HwControl::dwStart")
-        dwError = 0
+        oError = 0
 
         self.m_bHwIsRunning = True
 
@@ -260,7 +276,7 @@ class SDC_HwControl():
 
         self.m_poDevice.m_oTrigger.force()
 
-        return dwError
+        return oError
 
     # ********************************************************************************************************
     # ***** Public Method

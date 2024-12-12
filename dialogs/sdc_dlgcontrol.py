@@ -422,8 +422,6 @@ class SDC_DlgControl (QDialog):
     # ********************************************************************************************************
     def bStartHw(self) -> bool:
         #print("SDC_DlgControl::bStartHw")
-        dwError = 0
-
         try:
             poHwControl = self.m_poControl.poGetHwCtrlObj()
             if poHwControl:

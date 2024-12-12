@@ -5,6 +5,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import pyqtSignal, QTimer
 from PyQt5.QtGui import QIcon
 from settings.sdc_coresettings import SDC_CoreSettings
+from settings.sdc_settings import SDC_Settings
 
 # ********************************************************************************************************
 # ***** Public Constructor
@@ -19,6 +20,7 @@ class SDC_DlgCore(QWidget):
     def __init__(self, lDlgID : int, lCoreNum : int, lChannelNum : int, bFixCoreNum : bool, poHwControl, poParent):
         #print("SDC_DlgCore::__init__")
         super().__init__(poParent)
+        self.m_poParent    = poParent
         self.m_lDlgID      = lDlgID
         self.m_lCoreNum    = lCoreNum
         self.m_lChannelNum = lChannelNum
@@ -230,7 +232,7 @@ class SDC_DlgCore(QWidget):
     # ********************************************************************************************************
     def slAmplitudeChanged(self):
         self.m_eUpdateSetting = self.SETTING.AMPLITUDE
-        self.m_poTimerUpdate.start (200)
+        self.m_poTimerUpdate.start(200)
 
     # ********************************************************************************************************
     # ***** Private Slot
@@ -257,7 +259,7 @@ class SDC_DlgCore(QWidget):
         elif self.m_eUpdateSetting == self.SETTING.FREQUENCY:
             self.vFrequencyChanged()
         elif self.m_eUpdateSetting == self.SETTING.PHASE:
-            self.vPhaseChanged() 
+            self.vPhaseChanged()
 
     # ********************************************************************************************************
     # ***** Private Method
@@ -292,7 +294,9 @@ class SDC_DlgCore(QWidget):
     # ********************************************************************************************************
     def vAmplitudeChanged(self):
         dValue = self.poSpinBoxAmplitude.value() / 100.0
-        self.m_poHwControl.dwSetAmplitude(self.m_lCoreNum, dValue)
+        oErr = self.m_poHwControl.dwSetAmplitude(self.m_lCoreNum, dValue)
+        if oErr:
+            self.m_poParent.slShowMessageBox(SDC_Settings.MSBOX_TYPE.MSB_WARNING, "Error", "Error setting amplitude !")
         self.poSpinBoxAmplitude.setValue(dValue * 100.0)
 
         self.poDialAmplitude.setValue(int(self.poSpinBoxAmplitude.value()))
@@ -302,7 +306,9 @@ class SDC_DlgCore(QWidget):
     # ********************************************************************************************************
     def vFrequencyChanged(self):
         dValue = self.poSpinBoxFrequency.value() * 1000000.0
-        self.m_poHwControl.dwSetFrequency(self.m_lCoreNum, dValue)
+        oErr = self.m_poHwControl.dwSetFrequency(self.m_lCoreNum, dValue)
+        if oErr:
+            self.m_poParent.slShowMessageBox(SDC_Settings.MSBOX_TYPE.MSB_WARNING, "Error", "Error setting frequency !")
         self.poSpinBoxFrequency.setValue(dValue / 1000000.0)
 
         self.poDialFrequency.setValue(int(self.poSpinBoxFrequency.value()))
@@ -312,7 +318,9 @@ class SDC_DlgCore(QWidget):
     # ********************************************************************************************************
     def vPhaseChanged(self):
         dValue = self.poSpinBoxPhase.value()
-        self.m_poHwControl.dwSetPhase(self.m_lCoreNum, dValue)
+        oErr = self.m_poHwControl.dwSetPhase(self.m_lCoreNum, dValue)
+        if oErr:
+            self.m_poParent.slShowMessageBox(SDC_Settings.MSBOX_TYPE.MSB_WARNING, "Error", "Error setting phase !")
         self.poSpinBoxPhase.setValue(dValue)
 
         self.poDialPhase.setValue(int(self.poSpinBoxPhase.value()))

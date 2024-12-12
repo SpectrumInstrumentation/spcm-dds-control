@@ -34,7 +34,7 @@ class SDC_Control(QObject):
             self.sigShowMessage.emit(SDC_Settings.MSBOX_TYPE.MSB_WARNING, "No Hardware", "No Spectrum DDS device found !")
         else:
             for dwIdx in range(dwNumDevices):
-                poDevice = self.m_poHwControl.poGetDevice (dwIdx);
+                poDevice = self.m_poHwControl.poGetDevice(dwIdx)
                 if poDevice:
                     oDeviceNames.append(poDevice.sGetDeviceName())
 
