@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+    <file>resources/add.png</file>
+    <file>resources/add_hover.png</file>
+    <file>resources/remove.png</file>
+    <file>resources/remove_hover.png</file>
+    <file>resources/open.png</file>
+    <file>resources/open_hover.png</file>
+    <file>resources/save.png</file>
+    <file>resources/save_hover.png</file>
+    <file>resources/settings.png</file>
+    <file>resources/settings_hover.png</file>
+    <file>resources/hwsettings.png</file>
+    <file>resources/hwsettings_hover.png</file>
+    <file>resources/quit.png</file>
+    <file>resources/quit_hover.png</file>
+    <file>resources/banner.png</file>
+    </qresource>
+</RCC>
