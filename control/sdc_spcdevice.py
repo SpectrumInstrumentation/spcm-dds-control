@@ -40,27 +40,27 @@ class SDC_SpcDevChSetting:
 class SDC_SpcDevice:
     m_loChannelSettings : list = []
 
-    def __init__(self, hDevice):
+    def __init__(self, oDevice):
         #print("SDC_SpcDevice::__init__")
-        self.m_hDevice = hDevice
+        self.m_oDevice = oDevice
 
-        self.dds = spcm.DDS(self.m_hDevice)
-        self.trigger = spcm.Trigger(self.m_hDevice)
-        self.channels = spcm.Channels(self.m_hDevice)
-        self.clock = spcm.Clock(self.m_hDevice)
+        self.m_oDDS = spcm.DDS(self.m_oDevice)
+        self.m_oTrigger = spcm.Trigger(self.m_oDevice)
+        self.m_oChannels = spcm.Channels(self.m_oDevice)
+        self.m_oClock = spcm.Clock(self.m_oDevice)
 
         self.m_bIsDDS50 = False
 
-        acCardType = self.m_hDevice.product_name()
+        acCardType = self.m_oDevice.product_name()
 
-        self.m_lCardType = self.m_hDevice.card_type()
-        self.m_lSN = self.m_hDevice.sn()
-        lExtFeatureMask = self.m_hDevice.ext_features()
+        self.m_lCardType = self.m_oDevice.card_type()
+        self.m_lSN = self.m_oDevice.sn()
+        lExtFeatureMask = self.m_oDevice.ext_features()
 
         if lExtFeatureMask & spcm.SPCM_FEAT_EXTFW_DDS50:
             self.m_bIsDDS50 = True
 
-        self.m_lMaxChannels = self.m_hDevice.num_channels()
+        self.m_lMaxChannels = self.m_oDevice.num_channels()
 
         self.m_sDeviceName = "{} SN: {}".format(acCardType, self.m_lSN)
 
@@ -85,9 +85,9 @@ class SDC_SpcDevice:
 
         return SDC_SpcDevChSetting ()
 
-    def hDevice(self):
-        #print("SDC_SpcDevice::hDevice")
-        return self.m_hDevice
+    # def oDevice(self):
+    #     #print("SDC_SpcDevice::hDevice")
+    #     return self.m_oDevice
 
     def bIsDDS50(self) -> bool:
         #print("SDC_SpcDevice::bIsDDS50")

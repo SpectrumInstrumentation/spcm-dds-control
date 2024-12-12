@@ -38,11 +38,11 @@ class SDC_HwControl():
 
         for dwDevIdx in range(MAX_SPCM_DEVICES):
             oDeviceName = "/dev/spcm{}".format(dwDevIdx)
-            device = spcm.Card(oDeviceName, throw_error=False)
-            device.__enter__()
-            if device:
-                if self.bIsDeviceDDS(device):
-                    poDevice = SDC_SpcDevice(device)
+            oDevice = spcm.Card(oDeviceName, throw_error=False)
+            oDevice.__enter__()
+            if oDevice:
+                if self.bIsDeviceDDS(oDevice):
+                    poDevice = SDC_SpcDevice(oDevice)
                     self.m_vpoDevices.append(poDevice)
 
         return len(self.m_vpoDevices)
@@ -85,19 +85,19 @@ class SDC_HwControl():
         if not self.m_poDevice:
             return dwError
 
-        dMin = 0 #self.m_poDevice.dds.avail_amp_min() # TODO this is a bug in the driver
-        dMax = self.m_poDevice.dds.avail_amp_max()
-        dStep = self.m_poDevice.dds.avail_amp_step()
+        dMin = 0 #self.m_poDevice.m_oDDS.avail_amp_min() # TODO this is a bug in the driver
+        dMax = self.m_poDevice.m_oDDS.avail_amp_max()
+        dStep = self.m_poDevice.m_oDDS.avail_amp_step()
         poCoreSettings.vSetAmplitude(SDC_Value(dMin, dMax, dStep))
         
-        dMin = 0 #self.m_poDevice.dds.avail_freq_min() # TODO this is a bug in the driver
-        dMax = self.m_poDevice.dds.avail_freq_max()
-        dStep = self.m_poDevice.dds.avail_freq_step()
+        dMin = 0 #self.m_poDevice.m_oDDS.avail_freq_min() # TODO this is a bug in the driver
+        dMax = self.m_poDevice.m_oDDS.avail_freq_max()
+        dStep = self.m_poDevice.m_oDDS.avail_freq_step()
         poCoreSettings.vSetFrequency(SDC_Value(dMin, dMax, dStep))
 
-        dMin = self.m_poDevice.dds.avail_phase_min()
-        dMax = self.m_poDevice.dds.avail_phase_max()
-        dStep = self.m_poDevice.dds.avail_phase_step()
+        dMin = self.m_poDevice.m_oDDS.avail_phase_min()
+        dMax = self.m_poDevice.m_oDDS.avail_phase_max()
+        dStep = self.m_poDevice.m_oDDS.avail_phase_step()
         poCoreSettings.vSetPhase(SDC_Value(dMin, dMax, dStep))
 
         return dwError
@@ -108,10 +108,10 @@ class SDC_HwControl():
     def dwSetAmplitude (self, dwCoreIndex : int, pdValue : float) -> int:
         #print("SDC_HwControl::dwSetAmplitude")
         dwError = 0
-        self.m_poDevice.dds.amp(dwCoreIndex, pdValue)
+        self.m_poDevice.m_oDDS.amp(dwCoreIndex, pdValue)
         if self.m_bHwIsRunning:
-            self.m_poDevice.dds.exec_now()
-            self.m_poDevice.dds.write_to_card()
+            self.m_poDevice.m_oDDS.exec_now()
+            self.m_poDevice.m_oDDS.write_to_card()
 
         return dwError
 
@@ -121,10 +121,10 @@ class SDC_HwControl():
     def dwSetFrequency(self, dwCoreIndex : int, pdValue : float) -> int:
         #print("SDC_HwControl::dwSetFrequency")
         dwError = 0
-        self.m_poDevice.dds.freq(dwCoreIndex, pdValue)
+        self.m_poDevice.m_oDDS.freq(dwCoreIndex, pdValue)
         if self.m_bHwIsRunning:
-            self.m_poDevice.dds.exec_now()
-            self.m_poDevice.dds.write_to_card()
+            self.m_poDevice.m_oDDS.exec_now()
+            self.m_poDevice.m_oDDS.write_to_card()
 
         return dwError
 
@@ -134,10 +134,10 @@ class SDC_HwControl():
     def dwSetPhase(self, dwCoreIndex : int, pdValue : float) -> int:
         #print("SDC_HwControl::dwSetPhase")
         dwError = 0
-        self.m_poDevice.dds.phase(dwCoreIndex, pdValue)
+        self.m_poDevice.m_oDDS.phase(dwCoreIndex, pdValue)
         if self.m_bHwIsRunning:
-            self.m_poDevice.dds.exec_now()
-            self.m_poDevice.dds.write_to_card()
+            self.m_poDevice.m_oDDS.exec_now()
+            self.m_poDevice.m_oDDS.write_to_card()
 
         return dwError
 
@@ -177,12 +177,12 @@ class SDC_HwControl():
         
         dwNumCh = int(self.m_poDevice.lGetNumMaxChannels())
 
-        self.m_poDevice.dds.cores_on_channel(0, self.m_llConnectionMaskCh0)
+        self.m_poDevice.m_oDDS.cores_on_channel(0, self.m_llConnectionMaskCh0)
         if dwNumCh > 1:
-            self.m_poDevice.dds.cores_on_channel(1, self.m_llConnectionMaskCh1)
+            self.m_poDevice.m_oDDS.cores_on_channel(1, self.m_llConnectionMaskCh1)
         if dwNumCh > 2:
-            self.m_poDevice.dds.cores_on_channel(2, self.m_llConnectionMaskCh2)
-            self.m_poDevice.dds.cores_on_channel(3, self.m_llConnectionMaskCh3)
+            self.m_poDevice.m_oDDS.cores_on_channel(2, self.m_llConnectionMaskCh2)
+            self.m_poDevice.m_oDDS.cores_on_channel(3, self.m_llConnectionMaskCh3)
         
         return dwError
 
@@ -196,25 +196,25 @@ class SDC_HwControl():
         dwNumCh = int(self.m_poDevice.lGetNumMaxChannels())
 
         #print(f"{dwNumCh = }")
-        #print(f"{len(self.m_poDevice.channels) = }")
+        #print(f"{len(self.m_poDevice.m_oChannels) = }")
         
-        self.m_poDevice.channels.channels_enable(enable_all=True)
-        self.m_poDevice.hDevice().card_mode(spcm.SPC_REP_STD_DDS)
-        self.m_poDevice.clock.mode(spcm.SPC_CM_INTPLL)
-        self.m_poDevice.trigger.or_mask(spcm.SPC_TMASK_NONE)
+        self.m_poDevice.m_oChannels.channels_enable(enable_all=True)
+        self.m_poDevice.m_oDevice.card_mode(spcm.SPC_REP_STD_DDS)
+        self.m_poDevice.m_oClock.mode(spcm.SPC_CM_INTPLL)
+        self.m_poDevice.m_oTrigger.or_mask(spcm.SPC_TMASK_NONE)
 
-        #print(f"{len(self.m_poDevice.channels) = }")
+        #print(f"{len(self.m_poDevice.m_oChannels) = }")
 
         # setup the channels
         for dwChIdx in range(dwNumCh):
             oChSetting = self.m_poDevice.oGetChSettings(dwChIdx)
             
-            self.m_poDevice.channels[dwChIdx].amp(oChSetting.lGetOutputRange_mV())
-            self.m_poDevice.channels[dwChIdx].filter(oChSetting.lGetFilter())
-            self.m_poDevice.channels[dwChIdx].enable(oChSetting.lOutputEnabled())
+            self.m_poDevice.m_oChannels[dwChIdx].amp(oChSetting.lGetOutputRange_mV())
+            self.m_poDevice.m_oChannels[dwChIdx].filter(oChSetting.lGetFilter())
+            self.m_poDevice.m_oChannels[dwChIdx].enable(oChSetting.lOutputEnabled())
 
-        self.m_poDevice.hDevice().write_setup()
-        self.m_poDevice.dds.reset()
+        self.m_poDevice.m_oDevice.write_setup()
+        self.m_poDevice.m_oDDS.reset()
 
         return dwError
 
@@ -228,9 +228,9 @@ class SDC_HwControl():
         lCoreIndex = poCoreSettings.lGetCoreIndex()
         llBitMask = 0x1 << lCoreIndex
 
-        self.m_poDevice.dds.amp(lCoreIndex, poCoreSettings.oGetAmplitude().dGetValue())
-        self.m_poDevice.dds.freq(lCoreIndex, poCoreSettings.oGetFrequency().dGetValue())
-        self.m_poDevice.dds.phase(lCoreIndex, poCoreSettings.oGetPhase().dGetValue())
+        self.m_poDevice.m_oDDS.amp(lCoreIndex, poCoreSettings.oGetAmplitude().dGetValue())
+        self.m_poDevice.m_oDDS.freq(lCoreIndex, poCoreSettings.oGetFrequency().dGetValue())
+        self.m_poDevice.m_oDDS.phase(lCoreIndex, poCoreSettings.oGetPhase().dGetValue())
 
         # set connection masks
         if poCoreSettings.lGetChannel() == 0:
@@ -253,12 +253,12 @@ class SDC_HwControl():
 
         self.m_bHwIsRunning = True
 
-        self.m_poDevice.dds.exec_at_trg()
-        self.m_poDevice.dds.write_to_card()
+        self.m_poDevice.m_oDDS.exec_at_trg()
+        self.m_poDevice.m_oDDS.write_to_card()
 
-        self.m_poDevice.hDevice().start(spcm.M2CMD_CARD_ENABLETRIGGER)
+        self.m_poDevice.m_oDevice.start(spcm.M2CMD_CARD_ENABLETRIGGER)
 
-        self.m_poDevice.trigger.force()
+        self.m_poDevice.m_oTrigger.force()
 
         return dwError
 
@@ -267,7 +267,7 @@ class SDC_HwControl():
     # ********************************************************************************************************
     def vStop(self):
         #print("SDC_HwControl::vStop")
-        self.m_poDevice.hDevice().stop()
+        self.m_poDevice.m_oDevice.stop()
         self.m_bHwIsRunning = False
 
     # ********************************************************************************************************
