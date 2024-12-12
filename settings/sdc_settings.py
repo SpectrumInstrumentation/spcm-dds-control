@@ -62,7 +62,7 @@ class SDC_Settings:
     # ********************************************************************************************************
     def sGetAppTitle(self) -> str:
         #print("SDC_Settings::sGetAppTitle")
-        sAppTitle = APP_NAME_LONG + " " + self.m_sVersion
+        sAppTitle = f"{APP_NAME_LONG} v{self.m_sVersion}"
         
         return sAppTitle
 
