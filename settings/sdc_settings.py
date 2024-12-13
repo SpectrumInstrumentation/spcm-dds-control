@@ -22,13 +22,13 @@ DEFAULT_CORE_DDS50_CH2 = 48
 DEFAULT_CORE_DDS50_CH3 = 49
 
 class SDC_Settings:
-    MSBOX_TYPE = Enum('MSBOX_TYPE', ['MSB_INFO', 'MSB_WARNING', 'MSB_ERROR'])
-    _instance = None
+    MSBOX_TYPE : Enum = Enum('MSBOX_TYPE', ['MSB_INFO', 'MSB_WARNING', 'MSB_ERROR'])
+    _instance : object = None
 
-    m_sSetupFilePath = ""
-    m_bSaveOnExit = False
-    m_sVersion = __version__
-    m_sInternalSetupFilePath = "~spcmddscontrol.{}".format(SETUP_EXT)
+    m_sSetupFilePath : str = ""
+    m_bSaveOnExit : bool = False
+    m_sVersion : str = __version__
+    m_sInternalSetupFilePath : str = "~spcmddscontrol.{}".format(SETUP_EXT)
 
     # Singleton function
     def __new__(cls, *args, **kwargs):
@@ -63,7 +63,6 @@ class SDC_Settings:
     def sGetAppTitle(self) -> str:
         #print("SDC_Settings::sGetAppTitle")
         sAppTitle = f"{APP_NAME_LONG} v{self.m_sVersion}"
-        
         return sAppTitle
 
     # ********************************************************************************************************
@@ -85,11 +84,11 @@ class SDC_Settings:
         #print("SDC_Settings::vSaveSettings")
         oSettings = QSettings(COMPANY_NAME, APP_NAME_SHORT)
 
-        oSettings.setValue ("SetupFile", self.m_sSetupFilePath)
-        oSettings.setValue ("SaveOnExit", self.m_bSaveOnExit)
+        oSettings.setValue("SetupFile", self.m_sSetupFilePath)
+        oSettings.setValue("SaveOnExit", self.m_bSaveOnExit)
 
     
-    def vSetSaveOnExit (self, bState : bool):
+    def vSetSaveOnExit(self, bState : bool):
         #print("SDC_Settings::vSetSaveOnExit({})".format(bState))
         self.m_bSaveOnExit = bState
 

@@ -7,6 +7,8 @@ from control.sdc_hwcontrol import SDC_HwControl
 # ********************************************************************************************************
 class SDC_Control(QObject):
     sigShowMessage = pyqtSignal(SDC_Settings.MSBOX_TYPE, str, str)
+    m_poSettings : SDC_Settings = None
+    m_poHwControl : SDC_HwControl = None
 
     def __init__(self):
         #print("SDC_Control::__init__")

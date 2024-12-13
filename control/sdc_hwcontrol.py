@@ -10,17 +10,18 @@ MAX_SPCM_DEVICES = 16
 # ***** Public Constructor
 # ********************************************************************************************************
 class SDC_HwControl():
-    m_vpoDevices = []
-    m_llConnectionMaskCh0 = 0
-    m_llConnectionMaskCh1 = 0
-    m_llConnectionMaskCh2 = 0
-    m_llConnectionMaskCh3 = 0
+    m_vpoDevices : list = []
+    m_llConnectionMaskCh0 : int = 0
+    m_llConnectionMaskCh1 : int = 0
+    m_llConnectionMaskCh2 : int = 0
+    m_llConnectionMaskCh3 : int = 0
+    m_poSettings : SDC_Settings = None
+    m_poDevice : SDC_SpcDevice = None
+    m_bHwIsRunning : bool = False
 
     def __init__(self):
         #print("SDC_HwControl::__init__")
         self.m_poSettings = SDC_Settings()
-        self.m_poDevice = None
-        self.m_bHwIsRunning = False
 
     # ********************************************************************************************************
     # ***** Public Destructor
@@ -53,7 +54,7 @@ class SDC_HwControl():
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def vSetCurrentDevice (self, dwDevIdx : int):
+    def vSetCurrentDevice(self, dwDevIdx : int):
         #print("SDC_HwControl::vSetCurrentDevice")
 
         if dwDevIdx < len(self.m_vpoDevices):
@@ -62,7 +63,7 @@ class SDC_HwControl():
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def poGetDevice (self, dwDevIndex : int): # -> SDC_SpcDevice:
+    def poGetDevice(self, dwDevIndex : int): # -> SDC_SpcDevice:
         #print("SDC_HwControl::poGetDevice")
         if dwDevIndex < len(self.m_vpoDevices):
             return self.m_vpoDevices[dwDevIndex]
@@ -71,7 +72,7 @@ class SDC_HwControl():
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def poGetDeviceByeName (self, sName : str): #-> SDC_SpcDevice
+    def poGetDeviceByeName(self, sName : str): #-> SDC_SpcDevice
         #print("SDC_HwControl::poGetDeviceByeName")
         for device in self.m_vpoDevices:
             if device.sGetDeviceName() == sName:
@@ -92,7 +93,7 @@ class SDC_HwControl():
         poCoreSettings.vSetAmplitude(SDC_Value(dMin, dMax, dStep))
         
         dMin = 0 # self.m_poDevice.m_oDDS.avail_freq_min() # TODO this is a bug in the driver
-        dMax = self.m_poDevice.m_oDDS.avail_freq_max()
+        dMax = 2*self.m_poDevice.m_oDDS.avail_freq_max()
         dStep = self.m_poDevice.m_oDDS.avail_freq_step()
         poCoreSettings.vSetFrequency(SDC_Value(dMin, dMax, dStep))
 
@@ -199,7 +200,7 @@ class SDC_HwControl():
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def dwDoGeneralSetup (self) -> object:
+    def dwDoGeneralSetup(self) -> object:
         #print("SDC_HwControl::dwDoGeneralSetup")
         oError = None
 
@@ -234,7 +235,7 @@ class SDC_HwControl():
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def dwDoCoreSetup (self, poCoreSettings) -> object:
+    def dwDoCoreSetup(self, poCoreSettings) -> object:
         #print("SDC_HwControl::dwDoCoreSetup")
         oError = None
 
@@ -263,7 +264,7 @@ class SDC_HwControl():
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def dwStart (self):
+    def dwStart(self):
         #print("SDC_HwControl::dwStart")
         oError = 0
 

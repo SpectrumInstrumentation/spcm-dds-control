@@ -33,6 +33,8 @@ class SDC_Dial(QDial):
 # ***** Public Constructor : Class SDC_ToolButton
 # ********************************************************************************************************
 class SDC_ToolButton(QToolButton):
+    m_oIcon : QIcon = None
+    m_oIconHover : QIcon = None
     def __init__(self, poParent):
         #print("SDC_ToolButton::__init__")
         super().__init__(poParent)
@@ -69,6 +71,10 @@ class SDC_ToolButton(QToolButton):
 # ********************************************************************************************************
 class SDC_PushButton(QPushButton):
     type = Enum('type', ['DEFAULT', 'START', 'STOP'])
+    m_eType : type = None
+    m_sStyle : str = ""
+    m_sStyleOrig : str = ""
+    m_sStyleHover : str = ""
     
     def __init__(self, poParent):
         #print("SDC_PushButton::__init__")
@@ -92,7 +98,7 @@ class SDC_PushButton(QPushButton):
         elif eType == self.type.STOP:
             self.m_eType = eType
             self.m_sStyle = "QPushButton { color: #FFF; border: 2px solid #555; border - radius: 50px; border - style: outset; background: qradialgradient( cx : 0.3, cy : -0.4, fx : 0.3, fy : -0.4, radius : 1.35, stop : 0 white, stop: 1 red); padding: 5px;}"
-            self.setText ("  STOP  ")
+            self.setText("  STOP  ")
         else:
             self.m_eType = self.type.DEFAULT
             self.m_sStyle = self.m_sStyleOrig

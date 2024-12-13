@@ -2,6 +2,11 @@
 # from PyQt5.QtCore import QMap
 
 class SDC_Value:
+    m_dMin : float = 0
+    m_dMax : float = 0
+    m_dStep : float = 0
+    m_dValue : float = 0
+
     def __init__(self, dMin : float = 0, dMax : float = 0, dStep : float = 0):
         #print("SDC_Value::__init__")
         self.m_dMin = dMin
@@ -19,7 +24,7 @@ class SDC_Value:
     def vSetMax(self, dMax):
         #print("SDC_Value::vSetMax")
         self.m_dMax = dMax
-    def dGetMax (self) -> float:
+    def dGetMax(self) -> float:
         #print("SDC_Value::dGetMax")
         return self.m_dMax
 
@@ -38,9 +43,12 @@ class SDC_Value:
         return self.m_dValue
 
 class SDC_CoreSettings:
-    m_oAmplitude = None
-    m_oFrequency = None
-    m_oPhase = None
+    m_oAmplitude : SDC_Value = None
+    m_oFrequency : SDC_Value = None
+    m_oPhase : SDC_Value = None
+    m_lCoreIndex : int = -1
+    m_lChannel : int = 0
+    m_bDDS50 : bool = False
 
     # ********************************************************************************************************
     # ***** Public Constructor : Class SDC_CoreSettings

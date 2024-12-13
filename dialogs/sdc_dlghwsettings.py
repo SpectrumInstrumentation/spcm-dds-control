@@ -1,7 +1,9 @@
 #include "sdc_dlghwsettings.h"
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QWidget
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
+
+from control.sdc_spcdevice import SDC_SpcDevice
 
 MAX_CHANNELS = 4
 
@@ -9,6 +11,9 @@ MAX_CHANNELS = 4
 # ***** Public Constructor
 # ********************************************************************************************************
 class SDC_DlgHwSettings(QDialog):
+    m_poDevice : SDC_SpcDevice = None
+    ui : QWidget = None
+
     def __init__(self, poDevice, poParent = None):
         #print("SDC_DlgHwSettings::__init__")
         super().__init__(poParent)
@@ -113,7 +118,7 @@ class SDC_DlgHwSettings(QDialog):
                     oChSettings.vSetOutputRange_mV(self.poSpinBoxOutputRangeCh3.value())
                     oChSettings.vSetFilter(self.poComboBoxFilterCh3.currentIndex())
 
-                self.m_poDevice.vSetChSettings (lChIdx, oChSettings)
+                self.m_poDevice.vSetChSettings(lChIdx, oChSettings)
 
         self.close()
 

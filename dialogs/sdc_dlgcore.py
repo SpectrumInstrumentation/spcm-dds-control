@@ -1,9 +1,10 @@
 from enum import Enum
 
-from PyQt5.QtWidgets import QWidget, QComboBox, QSpinBox, QDial, QPushButton, QGroupBox
+from PyQt5.QtWidgets import QWidget
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSignal, QTimer
 from PyQt5.QtGui import QIcon
+from control.sdc_hwcontrol import SDC_HwControl
 from settings.sdc_coresettings import SDC_CoreSettings
 from settings.sdc_settings import SDC_Settings
 
@@ -12,6 +13,16 @@ from settings.sdc_settings import SDC_Settings
 # ********************************************************************************************************
 class SDC_DlgCore(QWidget):
     SETTING = Enum('SETTING', ['NONE', 'CORENUM', 'AMPLITUDE', 'FREQUENCY', 'PHASE'])
+    m_poParent : QWidget = None
+    m_lDlgID : int = 0
+    m_lCoreNum : int = 0
+    m_lChannelNum : int = 0
+    m_bFixCoreNum : bool = False
+    m_poHwControl : SDC_HwControl = None
+    m_poCoreSettings : SDC_CoreSettings = None
+    m_eUpdateSetting : SETTING = None
+    ui : QWidget = None
+    m_poTimerUpdate : QTimer = None
 
     # signals
     sigRemoveCoreDialog = pyqtSignal(int)
@@ -159,7 +170,6 @@ class SDC_DlgCore(QWidget):
 
         self.poComboBoxChannels.clear()
 
-        # QMapIterator <int, QString> itMap (mlsAllowedChannels);
         for key, allowed_channel in mlsAllowedChannels.items():
             self.poComboBoxChannels.addItem(allowed_channel, key)
 
@@ -195,7 +205,7 @@ class SDC_DlgCore(QWidget):
         #print("SDC_DlgCore::slDialAmplitudeChanged")
         if lValue is None:
             self.poSpinBoxPhase.setValue(self.poDialPhase.value())
-            self.vPhaseChanged()
+            self.vAmplitudeChanged()
         else:
             self.poSpinBoxAmplitude.setValue(lValue)
     
@@ -214,6 +224,7 @@ class SDC_DlgCore(QWidget):
     # ***** Private Slot
     # ********************************************************************************************************
     def slDialPhaseChanged(self, lValue : int = None):
+        #print("SDC_DlgCore::slDialPhaseChanged")
         if lValue is None:
             self.poSpinBoxFrequency.setValue(self.poDialFrequency.value())
             self.vPhaseChanged()
@@ -224,6 +235,7 @@ class SDC_DlgCore(QWidget):
     # ***** Private Slot
     # ********************************************************************************************************
     def slCoreNumChanged(self):
+        #print("SDC_DlgCore::slCoreNumChanged")
         self.m_eUpdateSetting = self.SETTING.CORENUM
         self.m_poTimerUpdate.start(500)
 
@@ -231,6 +243,7 @@ class SDC_DlgCore(QWidget):
     # ***** Private Slot
     # ********************************************************************************************************
     def slAmplitudeChanged(self):
+        #print("SDC_DlgCore::slAmplitudeChanged")
         self.m_eUpdateSetting = self.SETTING.AMPLITUDE
         self.m_poTimerUpdate.start(200)
 
@@ -238,6 +251,7 @@ class SDC_DlgCore(QWidget):
     # ***** Private Slot
     # ********************************************************************************************************
     def slFrequencyChanged(self):
+        #print("SDC_DlgCore::slFrequencyChanged")
         self.m_eUpdateSetting = self.SETTING.FREQUENCY
         self.m_poTimerUpdate.start(200)
 
@@ -245,6 +259,7 @@ class SDC_DlgCore(QWidget):
     # ***** Private Slot
     # ********************************************************************************************************
     def slPhaseChanged(self):
+        #print("SDC_DlgCore::slPhaseChanged")
         self.m_eUpdateSetting = self.SETTING.PHASE
         self.m_poTimerUpdate.start(200)
 
@@ -252,6 +267,7 @@ class SDC_DlgCore(QWidget):
     # ***** Private Slot
     # ********************************************************************************************************
     def slTimeoutUpdate(self):
+        #print("SDC_DlgCore::slTimeoutUpdate")
         if self.m_eUpdateSetting == self.SETTING.CORENUM:
             self.vCoreNumChanged()
         elif self.m_eUpdateSetting == self.SETTING.AMPLITUDE:
@@ -265,6 +281,7 @@ class SDC_DlgCore(QWidget):
     # ***** Private Method
     # ********************************************************************************************************
     def vSetChannelNum(self, lChNum : int):
+        #print("SDC_DlgCore::vSetChannelNum")
         self.poComboBoxChannels.currentIndexChanged.disconnect(self.slChannelSelectionChanged)
 
         lIndex = self.poComboBoxChannels.findData(lChNum)
@@ -280,7 +297,16 @@ class SDC_DlgCore(QWidget):
     # ***** Private Method
     # ********************************************************************************************************
     def vCoreNumChanged(self):
+        #print("SDC_DlgCore::vCoreNumChanged")
+        dPrevAmplitude = self.poSpinBoxAmplitude.value()
+
+        self.poSpinBoxAmplitude.setValue(0.0)
+        self.vAmplitudeChanged()
         self.m_lCoreNum = self.poSpinBoxCoreNum.value()
+        self.poSpinBoxAmplitude.setValue(dPrevAmplitude)
+        self.vAmplitudeChanged()
+        self.vFrequencyChanged()
+        self.vPhaseChanged()
 
         if not self.m_bFixCoreNum:
             self.vSetAllowedChannels(self.m_lCoreNum, self.m_lChannelNum)
@@ -293,6 +319,7 @@ class SDC_DlgCore(QWidget):
     # ***** Private Method
     # ********************************************************************************************************
     def vAmplitudeChanged(self):
+        #print("SDC_DlgCore::vAmplitudeChanged")
         dValue = self.poSpinBoxAmplitude.value() / 100.0
         oErr = self.m_poHwControl.dwSetAmplitude(self.m_lCoreNum, dValue)
         if oErr:
@@ -305,6 +332,7 @@ class SDC_DlgCore(QWidget):
     # ***** Private Method
     # ********************************************************************************************************
     def vFrequencyChanged(self):
+        #print("SDC_DlgCore::vFrequencyChanged")
         dValue = self.poSpinBoxFrequency.value() * 1000000.0
         oErr = self.m_poHwControl.dwSetFrequency(self.m_lCoreNum, dValue)
         if oErr:
@@ -317,6 +345,7 @@ class SDC_DlgCore(QWidget):
     # ***** Private Method
     # ********************************************************************************************************
     def vPhaseChanged(self):
+        #print("SDC_DlgCore::vPhaseChanged")
         dValue = self.poSpinBoxPhase.value()
         oErr = self.m_poHwControl.dwSetPhase(self.m_lCoreNum, dValue)
         if oErr:

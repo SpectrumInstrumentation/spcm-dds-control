@@ -9,17 +9,18 @@ from settings.sdc_settings import SDC_Settings
 # ***** Public Constructor
 # ********************************************************************************************************
 class SDC_DlgSettings(QDialog):
+    m_poSettings : SDC_Settings = None
+    ui : QDialog = None
     
     def __init__(self, poParent = None):
+        #print("SDC_DlgSettings::__init__")
         super().__init__(poParent)
     
         self.m_poSettings = SDC_Settings()
-        #print("SDC_DlgSettings::__init__ - bSaveOnExit: {}".format(self.m_poSettings.bSaveOnExit()))
         
         self.ui = uic.loadUi("formfiles/DlgSettings.ui", self)
         self.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinMaxButtonsHint)
         
-        #print("SDC_DlgSettings::__init__ - bSaveOnExit: {}".format(self.m_poSettings.bSaveOnExit()))
         self.poCheckBoxSaveExit.setChecked(self.m_poSettings.bSaveOnExit())
 
         self.poButtonCancel.clicked.connect(self.close)

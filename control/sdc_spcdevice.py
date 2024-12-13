@@ -4,13 +4,17 @@ import spcm
 # ***** Public Constructor
 # ********************************************************************************************************
 class SDC_SpcDevChSetting:
+    m_lOutputEnabled : int = 0
+    m_lOutputRange_mV : int = 0
+    m_lFilter : int = 0
+
     def __init__(self):
         #print("SDC_SpcDevChSetting::__init__")
         self.m_lOutputEnabled = 1
         self.m_lOutputRange_mV = 1000
         self.m_lFilter = 0
         
-    def vSetOutputEnabled (self, lValue : int):
+    def vSetOutputEnabled(self, lValue : int):
         #print("SDC_SpcDevChSetting::vSetOutputEnabled")
         self.m_lOutputEnabled = lValue
 
@@ -18,7 +22,7 @@ class SDC_SpcDevChSetting:
         #print("SDC_SpcDevChSetting::lOutputEnabled")
         return self.m_lOutputEnabled
 
-    def vSetOutputRange_mV (self, lValue : int):
+    def vSetOutputRange_mV(self, lValue : int):
         #print("SDC_SpcDevChSetting::vSetOutputRange_mV")
         self.m_lOutputRange_mV = lValue
 
@@ -26,7 +30,7 @@ class SDC_SpcDevChSetting:
         #print("SDC_SpcDevChSetting::lGetOutputRange_mV")
         return self.m_lOutputRange_mV
 
-    def vSetFilter (self, lValue : int):
+    def vSetFilter(self, lValue : int):
         #print("SDC_SpcDevChSetting::vSetFilter")
         self.m_lFilter = lValue
 
@@ -38,7 +42,17 @@ class SDC_SpcDevChSetting:
 # ***** Public Constructor
 # ********************************************************************************************************
 class SDC_SpcDevice:
-    m_loChannelSettings : list = []
+    m_loChannelSettings : list[SDC_SpcDevChSetting] = []
+    m_oDevice : spcm.Device = None
+    m_oDDS : spcm.DDS = None
+    m_oTrigger : spcm.Trigger = None
+    m_oChannels : spcm.Channels = None
+    m_oClock : spcm.Clock = None
+    m_bIsDDS50 : bool = False
+    m_lCardType : int = 0
+    m_lSN : int = 0
+    m_lMaxChannels : int = 0
+    m_sDeviceName : str = ""
 
     def __init__(self, oDevice):
         #print("SDC_SpcDevice::__init__")
@@ -78,12 +92,12 @@ class SDC_SpcDevice:
     # ********************************************************************************************************
     # ***** Public Method
     # ********************************************************************************************************
-    def oGetChSettings (self, lChIdx : int): # -> SDC_SpcDevChSetting:
+    def oGetChSettings(self, lChIdx : int): # -> SDC_SpcDevChSetting:
         #print("SDC_SpcDevice::oGetChSettings")
         if lChIdx < len(self.m_loChannelSettings):
             return self.m_loChannelSettings[lChIdx]
 
-        return SDC_SpcDevChSetting ()
+        return SDC_SpcDevChSetting()
 
     # def oDevice(self):
     #     #print("SDC_SpcDevice::hDevice")

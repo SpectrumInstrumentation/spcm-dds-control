@@ -18,9 +18,14 @@ MAX_CORES = 16
 # ******************************************************************************************************
 # ***** Public Constructor
 # ********************************************************************************************************
-class SDC_DlgControl (QDialog):
-    started = False
-    m_mlpoCoreDialogs = {}
+class SDC_DlgControl(QDialog):
+    started : bool = False
+    m_poControl : SDC_Control = None
+    m_poSettings : SDC_Settings = None
+    m_mlpoCoreDialogs : dict[int, SDC_DlgCore] = {}
+    ui : QDialog = None
+    m_poTimerResize : QTimer = None
+    m_poLayoutCores : QGridLayout = None
     
     def __init__(self, start : bool): 
         #print("SDC_DlgControl::__init__")
@@ -43,7 +48,7 @@ class SDC_DlgControl (QDialog):
 
         # create grid layout for core widgets
         self.m_poLayoutCores = QGridLayout(self.ui.poWidgetMain)
-        self.m_poLayoutCores.setContentsMargins (0, 0, 0, 0)
+        self.m_poLayoutCores.setContentsMargins(0, 0, 0, 0)
         
         self.vInitGUI()
 
@@ -75,13 +80,13 @@ class SDC_DlgControl (QDialog):
     # ********************************************************************************************************
     # ***** Protected Event
     # ********************************************************************************************************
-    def closeEvent (self, event):
+    def closeEvent(self, event):
         #print("SDC_DlgControl::closeEvent")
         if self.m_poSettings.bSaveOnExit():
             self.vSaveSetup(self.m_poSettings.sGetInternalSetupFilePath())
         else:
             if QFile.exists(self.m_poSettings.sGetInternalSetupFilePath()):
-                QFile.remove(self.m_poSettings.sGetInternalSetupFilePath ())
+                QFile.remove(self.m_poSettings.sGetInternalSetupFilePath())
 
     # ********************************************************************************************************
     # ***** Private Slot
@@ -89,11 +94,11 @@ class SDC_DlgControl (QDialog):
     def slShowMessageBox(self, eMSBoxType, sTitle : str, sMessage : str):
         #print("SDC_DlgControl::slShowMessageBox")
         if eMSBoxType == SDC_Settings.MSBOX_TYPE.MSB_INFO:
-            msgbox = QMessageBox.information (self, sTitle, sMessage)
+            msgbox = QMessageBox.information(self, sTitle, sMessage)
         elif eMSBoxType == SDC_Settings.MSBOX_TYPE.MSB_WARNING:
-            msgbox = QMessageBox.warning (self, sTitle, sMessage)
+            msgbox = QMessageBox.warning(self, sTitle, sMessage)
         elif eMSBoxType == SDC_Settings.MSBOX_TYPE.MSB_ERROR:
-            msgbox = QMessageBox.critical (self, sTitle, sMessage)
+            msgbox = QMessageBox.critical(self, sTitle, sMessage)
 
     # ********************************************************************************************************
     # ***** Private Slot
@@ -109,15 +114,15 @@ class SDC_DlgControl (QDialog):
             #print(poDevice.lGetNumMaxChannels())
             for lChIdx in range(poDevice.lGetNumMaxChannels()):
                 if poDevice.bIsDDS50():
-                    if lChIdx == 0: self.vAddCoreDialog (lChIdx, DEFAULT_CORE_DDS50_CH0, True)
-                    if lChIdx == 1: self.vAddCoreDialog (lChIdx, DEFAULT_CORE_DDS50_CH1, True)
-                    if lChIdx == 2: self.vAddCoreDialog (lChIdx, DEFAULT_CORE_DDS50_CH2, True)
-                    if lChIdx == 3: self.vAddCoreDialog (lChIdx, DEFAULT_CORE_DDS50_CH3, True)
+                    if lChIdx == 0: self.vAddCoreDialog(lChIdx, DEFAULT_CORE_DDS50_CH0, True)
+                    if lChIdx == 1: self.vAddCoreDialog(lChIdx, DEFAULT_CORE_DDS50_CH1, True)
+                    if lChIdx == 2: self.vAddCoreDialog(lChIdx, DEFAULT_CORE_DDS50_CH2, True)
+                    if lChIdx == 3: self.vAddCoreDialog(lChIdx, DEFAULT_CORE_DDS50_CH3, True)
                 else:
-                    if lChIdx == 0: self.vAddCoreDialog (lChIdx, DEFAULT_CORE_DDS20_CH0, True)
-                    if lChIdx == 1: self.vAddCoreDialog (lChIdx, DEFAULT_CORE_DDS20_CH1, True)
-                    if lChIdx == 2: self.vAddCoreDialog (lChIdx, DEFAULT_CORE_DDS20_CH2, True)
-                    if lChIdx == 3: self.vAddCoreDialog (lChIdx, DEFAULT_CORE_DDS20_CH3, True)
+                    if lChIdx == 0: self.vAddCoreDialog(lChIdx, DEFAULT_CORE_DDS20_CH0, True)
+                    if lChIdx == 1: self.vAddCoreDialog(lChIdx, DEFAULT_CORE_DDS20_CH1, True)
+                    if lChIdx == 2: self.vAddCoreDialog(lChIdx, DEFAULT_CORE_DDS20_CH2, True)
+                    if lChIdx == 3: self.vAddCoreDialog(lChIdx, DEFAULT_CORE_DDS20_CH3, True)
 
         self.vResizeDialog()
 
@@ -131,7 +136,7 @@ class SDC_DlgControl (QDialog):
     # ********************************************************************************************************
     # ***** Private Method
     # ********************************************************************************************************
-    def vAddCoreDialog (self, lChNum : int = 0, lCoreNum : int = -1, bFixCoreNum : bool = False):
+    def vAddCoreDialog(self, lChNum : int = 0, lCoreNum : int = -1, bFixCoreNum : bool = False):
         #print("SDC_DlgControl::vAddCoreDialog")
         #print(f"lChNum: {lChNum}, lCoreNum: {lCoreNum}, bFixCoreNum: {bFixCoreNum}, {len(self.m_mlpoCoreDialogs) = }")
         if len(self.m_mlpoCoreDialogs) >= MAX_CORES:
@@ -185,7 +190,7 @@ class SDC_DlgControl (QDialog):
     # ********************************************************************************************************
     # ***** Private Method
     # ********************************************************************************************************
-    def vLoadSetup (self, sFilePath : str):
+    def vLoadSetup(self, sFilePath : str):
         #print("SDC_DlgControl::vLoadSetup({})".format(sFilePath))
         if QFile.exists(sFilePath):
             oSettings = QSettings(sFilePath, QSettings.IniFormat, self)
@@ -198,38 +203,38 @@ class SDC_DlgControl (QDialog):
 
             # read core settings
             for lIdx in range(lNumCores):
-                oSettings.beginGroup ("Core{}".format(lIdx))
-                lDlgID = oSettings.value ("ID", -1, int)
+                oSettings.beginGroup("Core{}".format(lIdx))
+                lDlgID = oSettings.value("ID", -1, int)
 
                 if lDlgID in self.m_mlpoCoreDialogs:
                     oCoreSettings = SDC_CoreSettings()
                     oValue = SDC_Value()
 
-                    lCoreNum = oSettings.value ("CoreNum", -1, int)
-                    lChNum = oSettings.value ("ChNum", -1, int)
+                    lCoreNum = oSettings.value("CoreNum", -1, int)
+                    lChNum = oSettings.value("ChNum", -1, int)
 
                     if lCoreNum > -1: oCoreSettings.vSetCoreIndex(lCoreNum)
                     if lChNum > -1: oCoreSettings.vSetChannel(lChNum)
 
                     oValue.vSetValue(oSettings.value("Amp", 0, float))
-                    oCoreSettings.vSetAmplitude (oValue)
+                    oCoreSettings.vSetAmplitude(oValue)
 
                     oValue.vSetValue(oSettings.value("Freq", 0, float))
-                    oCoreSettings.vSetFrequency (oValue)
+                    oCoreSettings.vSetFrequency(oValue)
 
-                    oValue.vSetValue (oSettings.value("Phase", 0, float))
-                    oCoreSettings.vSetPhase (oValue)
+                    oValue.vSetValue(oSettings.value("Phase", 0, float))
+                    oCoreSettings.vSetPhase(oValue)
 
                     self.m_mlpoCoreDialogs[lDlgID].vSetCoreSettings(oCoreSettings)
 
                 oSettings.endGroup()
             
             # read hardware settings
-            lNumDevices = oSettings.value ("NumDevices", 0, int)
+            lNumDevices = oSettings.value("NumDevices", 0, int)
             for lDevIdx in range(lNumDevices):
-                oSettings.beginGroup ("Device{}".format(lDevIdx))
+                oSettings.beginGroup("Device{}".format(lDevIdx))
 
-                sDeviceName = oSettings.value ("Name", "", str)
+                sDeviceName = oSettings.value("Name", "", str)
 
                 poDevice = self.m_poControl.poGetHwCtrlObj().poGetDeviceByeName(sDeviceName)
                 if poDevice:
@@ -242,22 +247,22 @@ class SDC_DlgControl (QDialog):
                         lValue = oSettings.value("OutputEnabled", 1, int)
                         oChSetting.vSetOutputEnabled(lValue)
 
-                        lValue = oSettings.value ("OutputRange", 1000, int)
+                        lValue = oSettings.value("OutputRange", 1000, int)
                         oChSetting.vSetOutputRange_mV(lValue)
 
-                        lValue = oSettings.value ("Filter", 0, int)
+                        lValue = oSettings.value("Filter", 0, int)
                         oChSetting.vSetFilter(lValue)
                         
                         oSettings.endGroup()
 
-                        poDevice.vSetChSettings (lChIdx, oChSetting)
+                        poDevice.vSetChSettings(lChIdx, oChSetting)
 
-                oSettings.endGroup ();
+                oSettings.endGroup();
 
     # ********************************************************************************************************
     # ***** Private Method
     # ********************************************************************************************************
-    def vSaveSetup (self, sFilePath : str):
+    def vSaveSetup(self, sFilePath : str):
         #print("SDC_DlgControl::vSaveSetup({})".format(sFilePath))
         if QFile.exists(sFilePath):
             QFile.remove(sFilePath)
@@ -269,16 +274,15 @@ class SDC_DlgControl (QDialog):
         lIndex = 0
 
         # save core settings
-        # QMapIterator <int, SDC_DlgCore*> itMap (m_mlpoCoreDialogs);
         for key, core_dialog in self.m_mlpoCoreDialogs.items():
             lIndex += 1
-            oSettings.beginGroup ("Core{}".format(lIndex))
-            oSettings.setValue ("ID",      key)
-            oSettings.setValue ("CoreNum", core_dialog.poGetCoreSettings().lGetCoreIndex())
-            oSettings.setValue ("ChNum",   core_dialog.poGetCoreSettings().lGetChannel())
-            oSettings.setValue ("Amp",     core_dialog.poGetCoreSettings().oGetAmplitude().dGetValue())
-            oSettings.setValue ("Freq",    core_dialog.poGetCoreSettings().oGetFrequency().dGetValue())
-            oSettings.setValue ("Phase",   core_dialog.poGetCoreSettings().oGetPhase().dGetValue())
+            oSettings.beginGroup("Core{}".format(lIndex))
+            oSettings.setValue("ID",      key)
+            oSettings.setValue("CoreNum", core_dialog.poGetCoreSettings().lGetCoreIndex())
+            oSettings.setValue("ChNum",   core_dialog.poGetCoreSettings().lGetChannel())
+            oSettings.setValue("Amp",     core_dialog.poGetCoreSettings().oGetAmplitude().dGetValue())
+            oSettings.setValue("Freq",    core_dialog.poGetCoreSettings().oGetFrequency().dGetValue())
+            oSettings.setValue("Phase",   core_dialog.poGetCoreSettings().oGetPhase().dGetValue())
             oSettings.endGroup()
 
         # save hardware settings
@@ -301,24 +305,24 @@ class SDC_DlgControl (QDialog):
                     oSettings.setValue("Filter", int(oChSetting.lGetFilter()))
                     oSettings.endGroup()
                 
-                oSettings.endGroup ()
+                oSettings.endGroup()
 
     # ********************************************************************************************************
     # ***** Private Slot
     # ********************************************************************************************************
     def slOpenSetup(self):
         #print("SDC_DlgControl::slOpenSetup")
-        sFilePath, bOk = QFileDialog.getOpenFileName(self, "Load Setup File", self.m_poSettings.sGetSetupFilePath(), "SDC (*.sdc)")
+        sFilePath, bOk = QFileDialog.getOpenFileName(self, "Load Setup File", self.m_poSettings.sGetSetupFilePath(), "SDC(*.sdc)")
         if sFilePath:
             self.m_poSettings.vSetSetupFilePath(sFilePath)
-            self.vLoadSetup (sFilePath)
+            self.vLoadSetup(sFilePath)
 
     # ********************************************************************************************************
     # ***** Private Slot
     # ********************************************************************************************************
     def slSaveSetup(self):
         #print("SDC_DlgControl::slSaveSetup")
-        sFilePath, bOk = QFileDialog.getSaveFileName (self, "Save Setup File", self.m_poSettings.sGetSetupFilePath(), "SDC (*.sdc)")
+        sFilePath, bOk = QFileDialog.getSaveFileName(self, "Save Setup File", self.m_poSettings.sGetSetupFilePath(), "SDC (*.sdc)")
         if sFilePath:
             self.m_poSettings.vSetSetupFilePath(sFilePath)
             self.vSaveSetup(sFilePath)
@@ -370,7 +374,7 @@ class SDC_DlgControl (QDialog):
     # ********************************************************************************************************
     # ***** Private Method
     # ********************************************************************************************************
-    def vInitGUI (self):
+    def vInitGUI(self):
         #print("SDC_DlgControl::vInitGUI")
         # set tool button icons
         self.poButtonAddCore.vSetIcons(QIcon(":/resources/add.png"), QIcon(":/resources/add_hover.png"));
@@ -390,8 +394,8 @@ class SDC_DlgControl (QDialog):
         oStrDeviceNames = self.m_poControl.oInit()
         if len(oStrDeviceNames):
             for name in oStrDeviceNames:
-                self.ui.poComboBoxDevice.addItem (name)
-            self.ui.poComboBoxDevice.setCurrentIndex (0)
+                self.ui.poComboBoxDevice.addItem(name)
+            self.ui.poComboBoxDevice.setCurrentIndex(0)
         else:
             self.ui.poComboBoxDevice.addItem("No Device");
             self.ui.poComboBoxDevice.setEnabled(False);
@@ -410,7 +414,7 @@ class SDC_DlgControl (QDialog):
     # ********************************************************************************************************
     # ***** Private Method
     # ********************************************************************************************************
-    def slRemoveCoreDialog (self, lID : int):
+    def slRemoveCoreDialog(self, lID : int):
         #print("SDC_DlgControl::slRemoveCoreDialog")
         poDlgCore = self.m_mlpoCoreDialogs.pop(lID)
         poDlgCore.setParent(None)
