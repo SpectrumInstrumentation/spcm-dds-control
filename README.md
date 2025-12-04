@@ -55,5 +55,14 @@ You should see the GUI window appear.
 # Demo devices
 To test the Spectrum Instrumentation API with user code without hardware, the Control Center gives the user the option to create [demo devices](https://spectrum-instrumentation.com/support/knowledgebase/software/How_to_set_up_a_demo_card.php). These demo devices can be used in the same manner as real devices. Simply change the device identifier string to the string as shown in the Control Center.
 
+# Development
+
+## Creating the resources file
+
+To create the resource file for Python use the following command:
+```bash
+$ pyrcc5 SpcDDSControl.qrc -o resources.py
+```
+
 # Documentation
 Please see the hardware user manual of your specific card for more information about the available functionality.

@@ -12,6 +12,10 @@
     <file>resources/settings_hover.png</file>
     <file>resources/hwsettings.png</file>
     <file>resources/hwsettings_hover.png</file>
+    <file>resources/prg.png</file>
+    <file>resources/prg_hover.png</file>
+    <file>resources/control.png</file>
+    <file>resources/control_hover.png</file>
     <file>resources/quit.png</file>
     <file>resources/quit_hover.png</file>
     <file>resources/banner.png</file>

@@ -1,59 +1,44 @@
 from enum import Enum
+import logging
 
 from PyQt5.QtWidgets import QDial, QToolButton, QPushButton
 from PyQt5.QtGui import QIcon, QCursor
-from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtCore import Qt, QEvent, qDebug
 
-# ********************************************************************************************************
-# ***** Public Constructor : Class SDC_Dial
-# ********************************************************************************************************
+
 class SDC_Dial(QDial):
     def __init__(self, poParent):
-        #print("SDC_Dial::__init__")
+        logging.debug("SDC_Dial::__init__")
         super().__init__(poParent)
         self.setCursor(QCursor(Qt.OpenHandCursor))
 
-    # ********************************************************************************************************
-    # ***** Protected Event : Class SDC_Dial
-    # ********************************************************************************************************
     def mousePressEvent(self, poEvent):
-        #print("SDC_Dial::mousePressEvent")
+        #logging.debug("SDC_Dial::mousePressEvent")
         self.setCursor(QCursor(Qt.ClosedHandCursor))
         super().mousePressEvent(poEvent)
 
-    # ********************************************************************************************************
-    # ***** Protected Event : Class SDC_Dial
-    # ********************************************************************************************************
     def mouseReleaseEvent(self, poEvent):
-        #print("SDC_Dial::mouseReleaseEvent")
+        #logging.debug("SDC_Dial::mouseReleaseEvent")
         self.setCursor(QCursor(Qt.OpenHandCursor))
         super().mouseReleaseEvent(poEvent)
 
-# ********************************************************************************************************
-# ***** Public Constructor : Class SDC_ToolButton
-# ********************************************************************************************************
+
 class SDC_ToolButton(QToolButton):
     m_oIcon : QIcon = None
     m_oIconHover : QIcon = None
     def __init__(self, poParent):
-        #print("SDC_ToolButton::__init__")
+        logging.debug("SDC_ToolButton::__init__")
         super().__init__(poParent)
         self.m_oIcon = QIcon()
         self.m_oIconHover = QIcon()
 
-    # ********************************************************************************************************
-    # ***** Public Method : Class SDC_ToolButton
-    # ********************************************************************************************************
     def vSetIcons(self, oIcon, oIconHover):
-        #print("SDC_ToolButton::vSetIcons")
+        logging.debug("SDC_ToolButton::vSetIcons")
         self.m_oIcon = oIcon
         self.m_oIconHover = oIconHover
 
-    # ********************************************************************************************************
-    # ***** Protected Event : Class SDC_ToolButton
-    # ********************************************************************************************************
     def event(self, poEvent) -> bool:
-        #print("SDC_ToolButton::event")
+        #logging.debug("SDC_ToolButton::event")
         if poEvent.type() == QEvent.HoverEnter:
             self.setIcon(self.m_oIconHover)
             poEvent.accept()
@@ -66,19 +51,16 @@ class SDC_ToolButton(QToolButton):
         return super().event(poEvent)
         
 
-# ********************************************************************************************************
-# ***** Public Constructor : Class SDC_PushButton
-# ********************************************************************************************************
 class SDC_PushButton(QPushButton):
-    type = Enum('type', ['DEFAULT', 'START', 'STOP'])
+    type = Enum('type', ['DEFAULT', 'START', 'STOP', 'WRITE'])
     m_eType : type = None
     m_sStyle : str = ""
     m_sStyleOrig : str = ""
     m_sStyleHover : str = ""
     
-    def __init__(self, poParent):
-        #print("SDC_PushButton::__init__")
-        super().__init__(poParent)
+    def __init__(self, parent):
+        logging.debug("SDC_PushButton::__init__")
+        super().__init__(parent)
         self.m_eType = self.type.DEFAULT
         self.m_sStyle      = "QPushButton { color: #FFFFFF; background-color: #007ACD }"
         self.m_sStyleOrig  = "QPushButton { color: #FFFFFF; background-color: #007ACD }"
@@ -86,19 +68,21 @@ class SDC_PushButton(QPushButton):
 
         self.setStyleSheet(self.m_sStyle)
 
-    # ********************************************************************************************************
-    # ***** Public Method : Class SDC_PushButton
-    # ********************************************************************************************************
     def vSetType(self, eType):
-        #print("SDC_PushButton::vSetType")
+        logging.debug("SDC_PushButton::vSetType")
         if eType == self.type.START:
             self.m_eType = eType
-            self.m_sStyle = "QPushButton { color: #FFF; border: 2px solid #555; border - radius: 50px; border - style: outset; background: qradialgradient( cx : 0.3, cy : -0.4, fx : 0.3, fy : -0.4, radius : 1.35, stop : 0 green, stop: 1 #01F001); padding: 5px;}"
+            self.m_sStyle = "QPushButton { color: #FFFFFF; border: 2px solid #555; border - radius: 50px; border - style: outset; background: qradialgradient( cx : 0.3, cy : -0.4, fx : 0.3, fy : -0.4, radius : 1.35, stop : 0 green, stop: 1 #01F001); padding: 5px;}"
             self.setText("  START  ")
         elif eType == self.type.STOP:
             self.m_eType = eType
-            self.m_sStyle = "QPushButton { color: #FFF; border: 2px solid #555; border - radius: 50px; border - style: outset; background: qradialgradient( cx : 0.3, cy : -0.4, fx : 0.3, fy : -0.4, radius : 1.35, stop : 0 white, stop: 1 red); padding: 5px;}"
+            self.m_sStyle = "QPushButton { color: #FFFFFF; border: 2px solid #555; border - radius: 50px; border - style: outset; background: qradialgradient( cx : 0.3, cy : -0.4, fx : 0.3, fy : -0.4, radius : 1.35, stop : 0 white, stop: 1 red); padding: 5px;}"
             self.setText("  STOP  ")
+        elif eType == self.type.WRITE:
+            self.m_eType = eType
+            self.m_sStyle = "QPushButton { color: #FFFFFF; border: 2px solid #555; border - radius: 50px; border - style: outset; background: qradialgradient( cx : 0.3, cy : -0.4, fx : 0.3, fy : -0.4, radius : 1.35, stop : 0 black, stop: 1 #FA792C); padding: 5px;}"
+            self.m_sStyleHover = "QPushButton { color: #FFFFFF; border: 2px solid #555; border - radius: 50px; border - style: outset; background-color: #333333; padding: 5px;}"
+            self.setText("Write To Queue")
         else:
             self.m_eType = self.type.DEFAULT
             self.m_sStyle = self.m_sStyleOrig
@@ -106,14 +90,11 @@ class SDC_PushButton(QPushButton):
         self.setStyleSheet(self.m_sStyle)
     
     def eGetType(self):
-        #print("SDC_PushButton::eGetType")
+        logging.debug("SDC_PushButton::eGetType")
         return self.m_eType
 
-    # ********************************************************************************************************
-    # ***** Protected Event : Class SDC_PushButton
-    # ********************************************************************************************************
     def event(self, poEvent) -> bool:
-        #print("SDC_PushButton::event")
+        #logging.debug("SDC_PushButton::event")
         if poEvent.type() == QEvent.HoverEnter:
             self.vSetHoverEffect(True)
             poEvent.accept()
@@ -125,11 +106,8 @@ class SDC_PushButton(QPushButton):
 
         return super().event(poEvent)
 
-    # ********************************************************************************************************
-    # ***** Protected Method : Class SDC_PushButton
-    # ********************************************************************************************************
     def vSetHoverEffect(self, bState : bool):
-        #print("SDC_PushButton::vSetHoverEffect")
+        logging.debug("SDC_PushButton::vSetHoverEffect")
         if not self.isEnabled():
             return
 
@@ -137,5 +115,3 @@ class SDC_PushButton(QPushButton):
             self.setStyleSheet(self.m_sStyleHover)
         else:
             self.setStyleSheet(self.m_sStyle)
-
-# ********************************************************************************************************

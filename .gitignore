@@ -52,3 +52,6 @@ ENV/
 
 # CUDA
 *cufile.log
+
+# SPCM DDS Control
+spcm-dds-control.log
