@@ -17,25 +17,16 @@ To get started with contributing, please follow these steps:
 ## Testing examples locally
 
 After cloning the repository or a fork. 
-1. Open the examples folder
-   ```bash
-   $ cd src/examples
-   ```
-2. Create and open a virtual environment
+   
+1. Create and open a virtual environment
    ```bash
    $ python -m venv venv
    $ source venv/Scripts/activate
    ```
-3. Install the dependencies
+2. Install the dependencies
    ```bash
    (venv) $ pip install -r requirements
    ```
-4. Install the local package in editing mode
-   ```bash
-   (venv) $ pip install -e ../..
-   ```
-   (make sure that ../.. is the main directory of the package)
-
 
 ## Code Style
 
