@@ -8,6 +8,12 @@ from PyQt5 import QtCore
 from dialogs.sdc_dlgcontrol import SDC_DlgControl
 import resources # import the resources for the ui
 
+## This is to have the windows menu icon correct
+import ctypes
+myappid = u'spectrum.spcmddscontrol.1' # arbitrary string
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+##
+
 DEBUG_MODE = 1 # 0 = off, 1 = file, 2 = console
 DEBUG_FILE = 'spcm-dds-control.log'
 
