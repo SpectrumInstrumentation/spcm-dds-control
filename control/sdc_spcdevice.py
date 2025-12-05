@@ -2,7 +2,7 @@ import logging
 from spcm_core import *
 from enum import Enum, auto
 
-from PyQt5.QtCore import QVariant, qDebug
+from PyQt5.QtCore import QVariant
 
 
 class SDC_SpcDevChSetting:
@@ -11,7 +11,6 @@ class SDC_SpcDevChSetting:
     m_lOutputRange_mV : int = 0
     m_lFilter : int = 0
 
-    # DONE
     def __init__(self, lMaxOutputRange_mV : int = 1000):
         logging.debug("SDC_SpcDevChSetting::__init__")
         self.m_lMaxOutputRange_mV = lMaxOutputRange_mV
@@ -46,12 +45,10 @@ class SDC_SpcDevChSetting:
         logging.debug("SDC_SpcDevChSetting::lGetFilter")
         return self.m_lFilter
     
-    # DONE
     def vSetMaxOutputRange_mV(self, lValue : int):
         logging.debug("SDC_SpcDevChSetting::vSetMaxOutputRange_mV")
         self.m_lMaxOutputRange_mV = lValue
     
-    # DONE
     def lGetMaxOutputRange_mV(self) -> int:
         logging.debug("SDC_SpcDevChSetting::lGetMaxOutputRange_mV")
         return self.m_lMaxOutputRange_mV
@@ -83,7 +80,6 @@ class SDC_SpcDevice:
     m_loChannelSettings : list[SDC_SpcDevChSetting] = []
     m_memInitCoreValues : dict[SETTING_TYPE, dict[int, float]] = {}
 
-    # DONE
     def __init__(self, hDevice, bRemote : bool = False):
         logging.debug("SDC_SpcDevice::__init__")
         self.m_hDevice = hDevice
@@ -139,18 +135,15 @@ class SDC_SpcDevice:
     def sGetDeviceName(self) -> str:
         logging.debug("SDC_SpcDevice::sGetDeviceName")
         return self.m_sDeviceName
-
-    # DONE
+    
     def lGetCardFamily(self) -> int:
         logging.debug("SDC_SpcDevice::lGetCardFamily")
         return ((TYP_SERIESMASK | TYP_FAMILYMASK) & self.m_lCardType)
-
-    # DONE
+    
     def lGetCardType(self) -> int:
         logging.debug("SDC_SpcDevice::lGetCardType")
         return self.m_lCardType
     
-    # DONE
     def lGetSerialNumber(self) -> int:
         logging.debug("SDC_SpcDevice::lGetSerialNumber")
         return self.m_lSN
@@ -159,12 +152,10 @@ class SDC_SpcDevice:
         logging.debug("SDC_SpcDevice::lGetNumMaxChannels")
         return self.m_lMaxChannels
     
-    # DONE
     def lGetMaxCores(self) -> int:
         logging.debug("SDC_SpcDevice::lGetMaxCores")
         return self.m_lMaxCores
     
-    # DONE
     def dGetInitCoreValue(self, eType : SETTING_TYPE, lCoreNum : int) -> float:
         logging.debug("SDC_SpcDevice::dGetInitCoreValue")
         if eType in self.m_memInitCoreValues and lCoreNum in self.m_memInitCoreValues[eType]:
@@ -179,12 +170,10 @@ class SDC_SpcDevice:
         else:
             return 0
     
-    # DONE
     def vSetGeneralSettings(self, sKey : str, oValue):
         logging.debug("SDC_SpcDevice::vSetGeneralSettings")
         self.m_msoGeneralSettings[sKey] = oValue
 
-    # DONE
     def oGetGeneralSettings(self, sKey : str):
         logging.debug("SDC_SpcDevice::oGetGeneralSettings")
         if sKey in self.m_msoGeneralSettings:
@@ -204,25 +193,21 @@ class SDC_SpcDevice:
 
         return SDC_SpcDevChSetting(0)
     
-    # DONE
     # Needs to be overridden in derived classes
     def lGetCoresPerChannel(self, lNumActiveChannels : int, lSRate_MS : int = 0) -> int:
         logging.debug("SDC_SpcDevice::lGetCoresPerChannel")
         return 0
     
-    # DONE
     def vSetDevIsRunning(self, bState : bool):
         logging.debug("SDC_SpcDevice::vSetDevIsRunning")
         self.m_bDevIsRunning = bState
 
-    #DONE
     def bIsDevRunning(self) -> bool:
         logging.debug("SDC_SpcDevice::bIsDevRunning")
         return self.m_bDevIsRunning
     
 
 class SDC_SpcDevM2p65xx(SDC_SpcDevice):
-    # DONE
     def __init__(self, oDevice, bRemote : bool = False):
         logging.debug("SDC_SpcDevM2p65xx::__init__")
         super().__init__(oDevice, bRemote)
@@ -234,7 +219,6 @@ class SDC_SpcDevM2p65xx(SDC_SpcDevice):
     
 
 class SDC_SpcDevM4i66xx(SDC_SpcDevice):
-    # DONE
     def __init__(self, oDevice, bRemote : bool = False):
         logging.debug("SDC_SpcDevM4i66xx::__init__")
         super().__init__(oDevice, bRemote)
@@ -242,7 +226,6 @@ class SDC_SpcDevM4i66xx(SDC_SpcDevice):
 
 
 class SDC_SpcDevM4i96xx(SDC_SpcDevice):
-    # DONE
     def __init__(self, oDevice, bRemote : bool = False):
         logging.debug("SDC_SpcDevM4i96xx::__init__")
         super().__init__(oDevice, bRemote)
@@ -250,7 +233,6 @@ class SDC_SpcDevM4i96xx(SDC_SpcDevice):
     
 
 class SDC_SpcDevM5i63xx(SDC_SpcDevice):
-    # DONE
     def __init__(self, oDevice, bRemote : bool = False):
         logging.debug("SDC_SpcDevM5i63xx::__init__")
         super().__init__(oDevice, bRemote)
@@ -263,7 +245,6 @@ class SDC_SpcDevM5i63xx(SDC_SpcDevice):
         self.m_memInitCoreValues[self.SETTING_TYPE.FREQUENCY][0] = 5000000
         self.m_memInitCoreValues[self.SETTING_TYPE.FREQUENCY][1] = 10000000
     
-    # DONE
     def lGetCoresPerChannel(self, lNumActiveChannels, lSRate_MS = 0):
         logging.debug("SDC_SpcDevM5i63xx::lGetCoresPerChannel")
         lCoresPerCh : int = 0

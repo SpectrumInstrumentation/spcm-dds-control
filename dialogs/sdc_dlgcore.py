@@ -3,7 +3,7 @@ import logging
 
 from PyQt5.QtWidgets import QWidget, QGridLayout, QMenu, QTableWidgetItem
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtSignal, QTimer, QSignalMapper, Qt, qDebug
+from PyQt5.QtCore import pyqtSignal, QTimer, QSignalMapper, Qt
 from PyQt5.QtGui import QIcon
 from control.sdc_control import SDC_Control
 from control.sdc_hwcontrol import SDC_HwControl, SDC_HwStatusThread, SDC_DrvCmd
@@ -30,7 +30,6 @@ class SDC_DlgCore(QWidget):
     ui : QWidget = None
     m_poParent : QWidget = None
 
-    # DONE
     def __init__(self, lDlgID : int, lCoreNum : int, lChannelNum : int, lChCoreIndex : int, poHwControl : SDC_HwControl, dwFlags : int , poParent : QWidget = None):
         logging.debug("SDC_DlgCore::__init__")
         super().__init__(poParent, flags=Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint)
@@ -101,10 +100,7 @@ class SDC_DlgCore(QWidget):
 
         self.vUpdateCoreGUI(bUseDefaultValue)
 
-        # raise Exception("Debug exception in SDC_DlgCore::__init__")
-
     # void vSetFlags (unsigned int dwFlags);
-    # DONE
     def vSetFlags(self, dwFlags : int):
         logging.debug("SDC_DlgCore::vSetFlags")
         self.m_dwFlags = dwFlags
@@ -140,13 +136,11 @@ class SDC_DlgCore(QWidget):
             self.ui.poLabelPhase.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
     
 	# unsigned int dwGetFlags () { return m_dwFlags; }
-    # DONE
     def dwGetFlags(self) -> int:
         logging.debug("SDC_DlgCore::dwGetFlags")
         return self.m_dwFlags
 
 	# SDC_CoreSettings *poGetCoreSettings ();
-    # DONE
     def poGetCoreSettings(self):
         logging.debug("SDC_DlgCore::poGetCoreSettings")
         self.m_poCoreSettings.vSetCoreNum(self.poSpinBoxCoreNum.value())
@@ -158,7 +152,6 @@ class SDC_DlgCore(QWidget):
         return self.m_poCoreSettings
 
 	# void vSetCoreSettings (SDC_CoreSettings oCoreSettings);
-    # DONE
     def vSetCoreSettings(self, oCoreSettings):
         logging.debug("SDC_DlgCore::vSetCoreSettings")
         self.ui.poSpinBoxCoreNum.setValue(oCoreSettings.lGetCoreIndex())
@@ -177,13 +170,11 @@ class SDC_DlgCore(QWidget):
         self.ui.poDialPhase.setValue(int(self.ui.poSpinBoxPhase.value()))
 	
 	# int lGetChNum () { return m_lChannelNum; }
-    # DONE
     def lGetChNum(self) -> int:
         logging.debug("SDC_DlgCore::lGetChNum")
         return self.m_lChannelNum
 
 	# void vUpdateCoreGUI (bool bUseDefaultValues = false);
-    # DONE
     def vUpdateCoreGUI(self, bUseDefaultValues : bool = False):
         logging.debug("SDC_DlgCore::vUpdateCoreGUI")
         if bUseDefaultValues:
@@ -211,7 +202,6 @@ class SDC_DlgCore(QWidget):
         self.slDialPhaseChanged()
 
 	# void slExtCoreNumChanged (int lCoreNum, int lChNum);
-    # DONE
     def slExtCoreNumChanged(self, lCoreNum : int, lChNum : int):
         logging.debug("SDC_DlgCore::slExtCoreNumChanged")
         # ch1 group
@@ -234,7 +224,6 @@ class SDC_DlgCore(QWidget):
     sigCoreNumChanged = pyqtSignal(int, int)
 
 	# void slChannelSelectionChanged ();
-    # DONE
     def slChannelSelectionChanged(self):
         logging.debug("SDC_DlgCore::slChannelSelectionChanged")
         try:
@@ -246,23 +235,20 @@ class SDC_DlgCore(QWidget):
         self.sigCoreNumChanged.emit(self.m_lCoreNum, m_lChannelNum)
     
 	# void slButtonRemove            ();
-    # DONE
     def slButtonRemove(self):
         logging.debug("SDC_DlgCore::slButtonRemove")
         self.sigRemoveCoreDialog.emit(self.m_lDlgID)
 
 	# void slDialAmplitudeChanged    ();
-    # DONE
     def slDialAmplitudeChanged(self, lValue : float = None):
         logging.debug("SDC_DlgCore::slDialAmplitudeChanged")
         if lValue is None:
-            self.poSpinBoxPhase.setValue(self.poDialPhase.value())
+            self.poSpinBoxAmplitude.setValue(self.poDialAmplitude.value())
             self.vAmplitudeChanged()
         else:
             self.poSpinBoxAmplitude.setValue(lValue)
 
 	# void slDialFrequencyChanged    ();
-    # DONE
     def slDialFrequencyChanged(self, lValue : int = None):
         logging.debug("SDC_DlgCore::slDialFrequencyChanged")
         if lValue is None:
@@ -272,45 +258,39 @@ class SDC_DlgCore(QWidget):
             self.poSpinBoxFrequency.setValue(lValue)
 
 	# void slDialPhaseChanged        ();
-    # DONE
     def slDialPhaseChanged(self, lValue : int = None):
         logging.debug("SDC_DlgCore::slDialPhaseChanged")
         if lValue is None:
-            self.poSpinBoxFrequency.setValue(self.poDialFrequency.value())
+            self.poSpinBoxPhase.setValue(self.poDialPhase.value())
             self.vPhaseChanged()
         else:
             self.poSpinBoxPhase.setValue(lValue)
 
 	# void slCoreNumChanged          ();
-    # DONE
     def slCoreNumChanged(self):
         logging.debug("SDC_DlgCore::slCoreNumChanged")
         self.m_eUpdateSetting = self.SETTING.CORENUM
         self.m_poTimerUpdate.start(500)
 
 	# void slAmplitudeChanged		   ();
-    # DONE
     def slAmplitudeChanged(self):
         logging.debug("SDC_DlgCore::slAmplitudeChanged")
         self.m_eUpdateSetting = self.SETTING.AMPLITUDE
         self.m_poTimerUpdate.start(200)
 
 	# void slFrequencyChanged		   ();
-    # DONE
     def slFrequencyChanged(self):
         logging.debug("SDC_DlgCore::slFrequencyChanged")
         self.m_eUpdateSetting = self.SETTING.FREQUENCY
         self.m_poTimerUpdate.start(200)
 
 	# void slPhaseChanged		       ();
-    # DONE
     def slPhaseChanged(self):
         logging.debug("SDC_DlgCore::slPhaseChanged")
         self.m_eUpdateSetting = self.SETTING.PHASE
         self.m_poTimerUpdate.start(200)
 
 	# void slTimeoutUpdate		   ();
-    # DONE
     def slTimeoutUpdate(self):
         logging.debug("SDC_DlgCore::slTimeoutUpdate")
         if self.m_eUpdateSetting == self.SETTING.CORENUM:
@@ -323,7 +303,6 @@ class SDC_DlgCore(QWidget):
             self.vPhaseChanged()
 
 	# void vUpdateGroupTitle ();
-    # DONE
     def vUpdateGroupTitle(self):
         logging.debug("SDC_DlgCore::vUpdateGroupTitle")
         sChNum = ""
@@ -348,7 +327,6 @@ class SDC_DlgCore(QWidget):
         self.ui.poGroupCore.setTitle(sTitle)
 
 	# void vSetAllowedChannels (int lCoreNum, int lDefaultChNum = -1);
-    # DONE
     def vSetAllowedChannels(self, lCoreNum : int, lDefaultChNum : int = -1):
         logging.debug("SDC_DlgCore::vSetAllowedChannels")
         mlsAllowedChannels = self.m_poCoreSettings.mlsGetAllowedChannels(lCoreNum)
@@ -364,7 +342,6 @@ class SDC_DlgCore(QWidget):
                 self.poComboBoxChannels.setCurrentIndex(lIndex)
 
 	# void vSetChannelNum    (int lChNum);
-    # DONE
     def vSetChannelNum(self, lChNum : int):
         logging.debug("SDC_DlgCore::vSetChannelNum")
         self.poComboBoxChannels.currentIndexChanged.disconnect(self.slChannelSelectionChanged)
@@ -379,7 +356,6 @@ class SDC_DlgCore(QWidget):
         self.poComboBoxChannels.currentIndexChanged.connect(self.slChannelSelectionChanged)
 
 	# void vCoreNumChanged   ();
-    # DONE
     def vCoreNumChanged(self):
         logging.debug("SDC_DlgCore::vCoreNumChanged")
         m_lCoreNum = self.ui.poSpinBoxCoreNum.value()
@@ -392,7 +368,6 @@ class SDC_DlgCore(QWidget):
         self.sigCoreNumChanged.emit(m_lCoreNum, self.m_lChannelNum)
 
 	# void vAmplitudeChanged ();
-    # DONE
     def vAmplitudeChanged(self):
         logging.debug("SDC_DlgCore::vAmplitudeChanged")
         dValue = self.ui.poSpinBoxAmplitude.value() / 100.0
@@ -403,7 +378,6 @@ class SDC_DlgCore(QWidget):
         self.ui.poDialAmplitude.setValue(int(self.ui.poSpinBoxAmplitude.value()))
 
 	# void vFrequencyChanged ();
-    # DONE
     def vFrequencyChanged(self):
         logging.debug("SDC_DlgCore::vFrequencyChanged")
         dValue = self.ui.poSpinBoxFrequency.value() * 1000000.0
@@ -414,7 +388,6 @@ class SDC_DlgCore(QWidget):
         self.ui.poDialFrequency.setValue(int(self.ui.poSpinBoxFrequency.value()))
 
 	# void vPhaseChanged     ();
-    # DONE
     def vPhaseChanged(self):
         logging.debug("SDC_DlgCore::vPhaseChanged")
         dValue = self.ui.poSpinBoxPhase.value()

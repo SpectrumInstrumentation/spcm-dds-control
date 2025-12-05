@@ -14,7 +14,6 @@ class SDC_DlgHwSettings(QDialog):
     m_poDevice : SDC_SpcDevice = None
     ui : QWidget = None
 
-    # DONE
     def __init__(self, poDevice, poParent = None):
         logging.debug("SDC_DlgHwSettings::__init__")
         super().__init__(poParent)
@@ -37,9 +36,7 @@ class SDC_DlgHwSettings(QDialog):
 
         self.setGeometry(oSize)
 
-
 	# void slButtonOk ();
-    # DONE
     def slButtonOk(self):
         logging.debug("SDC_DlgHwSettings::slButtonOk")
         for lChIdx in range(MAX_CHANNELS):
@@ -85,7 +82,6 @@ class SDC_DlgHwSettings(QDialog):
 
 	
 	# void vInitSettings ();
-    # DONE
     def vInitSettings(self):
         logging.debug("SDC_DlgHwSettings::vInitSettings")
         for lChIdx in range(MAX_CHANNELS):
@@ -134,7 +130,6 @@ class SDC_DlgHwSettings(QDialog):
                 self.vHideChannelSettings(True, lChIdx)
 
 	# void vHideChannelSettings (bool bHide, int lNumChannel);
-    # DONE
     def vHideChannelSettings(self, bHide : bool, lNumChannel : int):
         logging.debug("SDC_DlgHwSettings::vHideChannelSettings")
         if lNumChannel == 0:

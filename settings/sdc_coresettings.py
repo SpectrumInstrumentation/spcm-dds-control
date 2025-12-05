@@ -7,7 +7,7 @@ class SDC_Value:
     m_dStep : float = 0
     m_dValue : float = 0
 
-    # DONE
+    
     def __init__(self):
         logging.debug("SDC_Value::__init__")
         self.m_dMin = 0
@@ -15,7 +15,6 @@ class SDC_Value:
         self.m_dStep = 0
         self.m_dValue = 0
 
-    # DONE
     def vSetLimits(self, dMin, dMax, dStep):
         logging.debug("SDC_Value::vSetLimits")
         self.m_dMin = dMin
@@ -59,9 +58,7 @@ class SDC_CoreSettings:
     m_oAmplitude : SDC_Value = None
     m_oFrequency : SDC_Value = None
     m_oPhase : SDC_Value = None
-
-
-    # DONE
+    
     def __init__(self, lSetupID : int = -1, lCoreNum : int = -1, lChNum : int = -1, bDDS50 : bool = False):
         logging.debug("SDC_CoreSettings::__init__")
         self.m_lSetupID = lSetupID
@@ -73,117 +70,103 @@ class SDC_CoreSettings:
         self.m_oFrequency = SDC_Value()
         self.m_oPhase = SDC_Value()
 
-    # DONE
     def vSetSetupID(self, lSetupID : int):
         logging.debug("SDC_CoreSettings::vSetSetupID")
         self.m_lSetupID = lSetupID
-    # DONE
+    
     def lGetSetupID(self) -> int:
         logging.debug("SDC_CoreSettings::lGetSetupID")
         return self.m_lSetupID
 
-    # DONE
     def vSetCoreNum(self, lCoreNum : int):
         logging.debug("SDC_CoreSettings::vSetCoreNum")
         self.m_lCoreNum = lCoreNum
-    # DONE
+    
     def lGetCoreNum(self) -> int:
         logging.debug("SDC_CoreSettings::lGetCoreNum")
         return self.m_lCoreNum
 
-    # DONE
     def vSetChNum(self, lChNum : int):
         logging.debug("SDC_CoreSettings::vSetChNum")
         self.m_lChNum = lChNum
-    # DONE
+    
     def lGetChNum(self) -> int:
         logging.debug("SDC_CoreSettings::lGetChNum")
         return self.m_lChNum
 
-    # DONE
     def vSetAmplitude(self, oAmplitude : SDC_Value):
         logging.debug("SDC_CoreSettings::vSetAmplitude")
         if isinstance(oAmplitude, SDC_Value):
             self.m_oAmplitude = oAmplitude
         elif isinstance(oAmplitude, float):
             self.m_oAmplitude.vSetValue(oAmplitude)
-    # DONE   
+       
     def oGetAmplitude(self) -> SDC_Value:
         logging.debug("SDC_CoreSettings::oGetAmplitude")
         return self.m_oAmplitude
 
-    # DONE
     def vSetFrequency(self, oFrequency : SDC_Value):
         logging.debug("SDC_CoreSettings::vSetFrequency")
         if isinstance(oFrequency, SDC_Value):
             self.m_oFrequency = oFrequency
         elif isinstance(oFrequency, float):
             self.m_oFrequency.vSetValue(oFrequency)
-    # DONE
+    
     def oGetFrequency(self) -> SDC_Value:
         logging.debug("SDC_CoreSettings::oGetFrequency")
         return self.m_oFrequency
     
-    # DONE
     def vSetPhase(self, oPhase : SDC_Value):
         logging.debug("SDC_CoreSettings::vSetPhase")
         if isinstance(oPhase, SDC_Value):
             self.m_oPhase = oPhase
         elif isinstance(oPhase, float):
             self.m_oPhase.vSetValue(oPhase)
-    # DONE
+    
     def oGetPhase(self):
         logging.debug("SDC_CoreSettings::oGetPhase")
         return self.m_oPhase
 
-    # DONE
+    
     def vSetAmplitude(self, dAmplitude : float):
         logging.debug("SDC_CoreSettings::vSetAmplitude")
         self.m_oAmplitude.vSetValue(dAmplitude)
     
     # void vSetFrequency (double dFrequency) { m_oFrequency.vSetValue (dFrequency); }
-    # DONE
     def vSetFrequency(self, dFrequency : float):
         logging.debug("SDC_CoreSettings::vSetFrequency")
         self.m_oFrequency.vSetValue(dFrequency)
 
     # void vSetPhase     (double dPhase)     { m_oPhase.vSetValue (dPhase);         }
-    # DONE
     def vSetPhase(self, dPhase : float):
         logging.debug("SDC_CoreSettings::vSetPhase")
         self.m_oPhase.vSetValue(dPhase)
 
     # void vSetAmplitudeLimits (double dMin, double dMax, double dStep) { m_oAmplitude.vSetLimits (dMin, dMax, dStep); }
-    # DONE
     def vSetAmplitudeLimits(self, dMin : float, dMax : float, dStep : float):
         logging.debug("SDC_CoreSettings::vSetAmplitudeLimits")
         self.m_oAmplitude.vSetLimits(dMin, dMax, dStep)
 
     # void vSetFrequencyLimits (double dMin, double dMax, double dStep) { m_oFrequency.vSetLimits (dMin, dMax, dStep); }
-    # DONE
     def vSetFrequencyLimits(self, dMin : float, dMax : float, dStep : float):
         logging.debug("SDC_CoreSettings::vSetFrequencyLimits")
         self.m_oFrequency.vSetLimits(dMin, dMax, dStep)
 
     # void vSetPhaseLimits     (double dMin, double dMax, double dStep) { m_oPhase.vSetLimits (dMin, dMax, dStep); }
-    # DONE
     def vSetPhaseLimits(self, dMin : float, dMax : float, dStep : float):
         logging.debug("SDC_CoreSettings::vSetPhaseLimits")
         self.m_oPhase.vSetLimits(dMin, dMax, dStep)
 
     # void vSetLimitsSet (bool bState) { m_bLimitsSet = bState; }
-    # DONE
     def vSetLimitsSet(self, bState : bool):
         logging.debug("SDC_CoreSettings::vSetLimitsSet")
         self.m_bLimitsSet = bState
 
     # bool bLimitsSet () { return m_bLimitsSet; }
-    # DONE
     def bLimitsSet(self) -> bool:
         logging.debug("SDC_CoreSettings::bLimitsSet")
         return self.m_bLimitsSet
 
-    # DONE
     def mlsGetAllowedChannels(self, lCoreNum : int) -> dict:
         logging.debug("SDC_CoreSettings::mlsGetAllowedChannels")
         mlsAllowedChannels = {}

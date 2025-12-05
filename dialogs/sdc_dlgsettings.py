@@ -12,13 +12,12 @@ class SDC_DlgSettings(QDialog):
     m_poSettings : SDC_Settings = None
     ui : QDialog = None
     
-    # DONE
+    
     def __init__(self, poParent = None):
         logging.debug("SDC_DlgSettings::__init__")
         super().__init__(poParent)
     
-        self.m_poSettings = SDC_Settings()
-        # self.m_poSettings = SDC_Settings.poGetInstance()
+        self.m_poSettings = SDC_Settings.poGetInstance()
         
         self.ui = uic.loadUi("formfiles/DlgSettings.ui", self)
         self.ui.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinMaxButtonsHint)
@@ -29,7 +28,6 @@ class SDC_DlgSettings(QDialog):
         self.ui.poButtonCancel.clicked.connect(self.close)
         self.ui.poButtonOk.clicked.connect(self.slButtonOk)
 
-    # DONE
     def slButtonOk(self):
         logging.debug("SDC_DlgSettings::slButtonOk")
         self.m_poSettings.vSetSaveOnExit(self.ui.poCheckBoxSaveExit.isChecked())

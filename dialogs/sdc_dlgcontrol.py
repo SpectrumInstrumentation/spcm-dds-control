@@ -2,11 +2,11 @@ import logging
 from spcm_core import *
 
 from PyQt5.QtWidgets import QDialog, QGridLayout, QMessageBox, QFileDialog, QMenu, QTableWidgetItem, QWidget, QAbstractItemView, QAction, QProgressDialog, QComboBox
-from PyQt5.QtCore import Qt, QTimer, QFile, QSettings, QSignalMapper, QEvent, QPoint, QFileInfo, qDebug
+from PyQt5.QtCore import Qt, QTimer, QFile, QSettings, QSignalMapper, QEvent, QPoint, QFileInfo
 from PyQt5.QtGui import QIcon, QDropEvent, QMouseEvent, QKeyEvent, QColor
 from PyQt5 import uic
 
-from settings.sdc_settings import SDC_GuiMode, SDC_Settings, SETUP_FILE_EXT, SETUP_FILE_VERSION,\
+from settings.sdc_settings import SDC_GuiMode, SDC_Settings, SETUP_FILE_VERSION,\
      DEFAULT_CORE_DDS20_CH0, DEFAULT_CORE_DDS20_CH1, DEFAULT_CORE_DDS20_CH2, DEFAULT_CORE_DDS20_CH3,\
      DEFAULT_CORE_DDS50_CH0, DEFAULT_CORE_DDS50_CH1, DEFAULT_CORE_DDS50_CH2, DEFAULT_CORE_DDS50_CH3
 from control.sdc_control import SDC_Control
@@ -16,7 +16,6 @@ from dialogs.sdc_dlgsettings import SDC_DlgSettings
 from dialogs.sdc_dlghwsettings import SDC_DlgHwSettings
 from dialogs.sdc_dlgcore import SDC_DlgCore
 from control.sdc_spcdevice import SDC_SpcDevice
-from settings.sdc_coresettings import SDC_CoreSettings, SDC_Value
 
 MAX_CORES = 16
 
@@ -39,18 +38,13 @@ class SDC_DlgControl(QDialog):
     m_vlSelectedRows : list[int] = []
     m_voCmdList : list[SDC_DrvCmd] = []
     m_mlpoCoreDialogs : dict[int, SDC_DlgCore] = {}
-    # ui : DlgDDSControlClass = None
     ui : object = None
 
     started : bool = False
-    # m_mlpoCoreDialogs : dict[int, SDC_DlgCore] = {}
-    # ui : QDialog = None
     
-    # DONE
     def __init__(self, poParent : QWidget = None): 
         logging.debug("SDC_DlgControl::__init__")
         super().__init__(parent=poParent, flags=Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint)
-        # super().__init__(poParent)
 
         self.started = False
 
@@ -91,13 +85,11 @@ class SDC_DlgControl(QDialog):
         
         self.vSetGuiMode(SDC_GuiMode.MODE.CTRL)
 
-    # DONE
     def __del__(self):
         logging.debug("SDC_DlgControl::__del__")
         SDC_Settings.vDestroy()
         del self.m_poControl
 
-    # DONE
     def closeEvent(self, event):
         logging.debug("SDC_DlgControl::closeEvent")
         self.m_poHwControl.vStopAll()
@@ -108,11 +100,11 @@ class SDC_DlgControl(QDialog):
             if QFile.exists(self.m_poSettings.sGetInternalSetupFilePath()):
                 QFile.remove(self.m_poSettings.sGetInternalSetupFilePath())
     
-    # DONE
     def eventFilter(self, poObject, poEvent) -> bool:
         logging.debug("SDC_DlgControl::eventFilter")
         if poObject == self.poTableWidget.viewport() or poObject == self.ui.poTableWidget:
             if poEvent.type() == QEvent.Drop:
+                logging.debug("SDC_DlgControl::eventFilter - Drop event")
                 poDropEvent = QDropEvent(poEvent)
                 if poDropEvent:
                     poItem = self.poTableWidget.itemAt(poDropEvent.pos())
@@ -128,12 +120,14 @@ class SDC_DlgControl(QDialog):
                         return True
                 
             if poEvent.type() == QEvent.MouseButtonPress:
+                logging.debug("SDC_DlgControl::eventFilter - MouseButtonPress event")
                 poMouseEvent = QMouseEvent(poEvent)
                 if poMouseEvent:
                     if poMouseEvent.modifiers () == Qt.ControlModifier:
                         return True
 
             if poEvent.type() == QEvent.KeyPress:
+                logging.debug("SDC_DlgControl::eventFilter - KeyPress event")
                 poKeyEvent = QKeyEvent(poEvent)
                 if poKeyEvent and poKeyEvent.key() == Qt.Key_Delete:
                     self.vClearSelectedRows()
@@ -141,7 +135,6 @@ class SDC_DlgControl(QDialog):
 
         return super().eventFilter(poObject, poEvent)
     
-    # DONE
     def slRemoveCoreDialog(self, lID : int):
         logging.debug("SDC_DlgControl::slRemoveCoreDialog")
         if self.m_poDevice:
@@ -152,7 +145,6 @@ class SDC_DlgControl(QDialog):
 
         self.vResizeDialog()
 
-    # DONE
     def slShowMessageBox(self, eMSBoxType, sTitle : str, sMessage : str):
         logging.debug("SDC_DlgControl::slShowMessageBox")
         if eMSBoxType == SDC_Settings.MSBOX_TYPE.MSB_INFO:
@@ -162,7 +154,6 @@ class SDC_DlgControl(QDialog):
         elif eMSBoxType == SDC_Settings.MSBOX_TYPE.MSB_ERROR:
             msgbox = QMessageBox.critical(self, sTitle, sMessage)
 
-    # DONE
     def slDeviceChanged(self, lDevIdx : int):
         logging.debug("SDC_DlgControl::slDeviceChanged")
         self.hide()
@@ -190,7 +181,6 @@ class SDC_DlgControl(QDialog):
 
         self.show()
     
-    # DONE
     def slNumChannelsChanged(self, lItemIdx : int):
         logging.debug("SDC_DlgControl::slNumChannelsChanged")
         lNumChannels = int(self.poComboBoxNumChannels.itemData(lItemIdx))
@@ -205,7 +195,6 @@ class SDC_DlgControl(QDialog):
         elif self.m_poDevice.lGetCardFamily() == TYP_M5I63XX_X16:
             self.vSelectNumChM5i63xx(lNumChannels)
 
-    # DONE
     def slSamplingrateChanged(self, lItemIdx : int):
         logging.debug("SDC_DlgControl::slSamplingrateChanged")
         if not self.m_poDevice:
@@ -215,19 +204,16 @@ class SDC_DlgControl(QDialog):
             self.vSetCoresChM5i63xx()
 
     #void slShowNumCores (int lNumCores);
-    # DONE
     def slShowNumCores(self, lNumCores : int):
         logging.debug("SDC_DlgControl::slShowNumCores")
         self.vUpdateShowCoresFilter()
     
     #void slShowChannels (int lItemIdx);
-    # DONE
     def slShowChannels(self, lItemIdx : int):
         logging.debug("SDC_DlgControl::slShowChannels")
         self.vUpdateShowCoresFilter()
 
     #void slRegTextChanged (const QString& sText);
-    # DONE
     def slRegTextChanged(self, sText : str):
         logging.debug("SDC_DlgControl::slRegTextChanged")
         oListItems = self.poListWidgetRegs.findItems(sText, Qt.MatchContains)
@@ -239,20 +225,17 @@ class SDC_DlgControl(QDialog):
                 self.poListWidgetRegs.item(lIdx).setHidden(True)
         
     #void slRegItemDoubleClicked (QListWidgetItem* poItem);
-    # DONE
     def slRegItemDoubleClicked(self, poItem):
         logging.debug("SDC_DlgControl::slRegItemDoubleClicked")
         if self.m_poSelectedPrgTableItem:
             self.m_poSelectedPrgTableItem.setText(poItem.text())
 
     #void slPrgTableItemClicked (QTableWidgetItem* poItem);
-    # DONE
     def slPrgTableItemClicked(self, poItem):
         logging.debug("SDC_DlgControl::slPrgTableItemClicked")
         self.m_poSelectedPrgTableItem = poItem
     
     #void slPrgTableItemChanged (QTableWidgetItem* poItem);
-    # DONE
     def slPrgTableItemChanged(self, poItem : QTableWidgetItem):
         logging.debug("SDC_DlgControl::slPrgTableItemChanged")
         lRow = poItem.row()
@@ -268,7 +251,6 @@ class SDC_DlgControl(QDialog):
             self.m_bTableDropEvent = False
 
     #void slPrgTableItemSelectionChanged ();
-    # DONE
     def slPrgTableItemSelectionChanged(self):
         logging.debug("SDC_DlgControl::slPrgTableItemSelectionChanged")
         self.m_vlSelectedRows.clear()
@@ -282,20 +264,18 @@ class SDC_DlgControl(QDialog):
                 self.m_vlSelectedRows.append(lRow)
 
     #void slSetStatus (qint32 lQueueInSW, qint32 lQueueCount, qint32 lQueueMax);
-    # DONE
     def slSetStatus(self, lQueueInSW : int, lQueueCount : int, lQueueMax : int):
         logging.debug("SDC_DlgControl::slSetStatus")
         sText = "{} / {} / {}".format(lQueueInSW, lQueueCount, lQueueMax)
         self.poLabelQueueStatus.setText(sText)
 
-    # DONE
+    
     def slAddCoreDialog(self):
         logging.debug("SDC_DlgControl::slAddCoreDialog")
         if not self.m_poDevice.bIsDevRunning():
             self.vAddCoreDialog(0, -1, -1, False, SDC_DlgCore.FLAGS.NOFIXCORENUM)
     
     #void vAddCoreDialog  ();
-    # DONE
     def vAddCoreDialog(self, lChNum : int = 0, lCoreNum : int = -1, lChCoreIndex : int = -1, bLinear : bool = False, dwFlags : int = 0):
         logging.debug("SDC_DlgControl::vAddCoreDialog")
         if len(self.m_mlpoCoreDialogs) >= self.m_poDevice.lGetMaxCores():
@@ -347,7 +327,6 @@ class SDC_DlgControl(QDialog):
         self.vResizeDialog()
 
     #void slSwitchMode     ();
-    # DONE
     def slSwitchMode(self):
         logging.debug("SDC_DlgControl::slSwitchMode")
         if self.m_poCurrentGuiMode and self.m_poCurrentGuiMode.eGetMode() == SDC_GuiMode.MODE.CTRL:
@@ -355,7 +334,6 @@ class SDC_DlgControl(QDialog):
         else:
             self.vSetGuiMode(SDC_GuiMode.MODE.CTRL)
     
-    # DONE
     def slOpenSetup(self):
         logging.debug("SDC_DlgControl::slOpenSetup")
 
@@ -374,7 +352,6 @@ class SDC_DlgControl(QDialog):
             if sNewFilePath.endswith(".csv"):
                 self.vLoadSeqFile(sNewFilePath, True)
 
-    # DONE
     def slSaveSetup(self):
         logging.debug("SDC_DlgControl::slSaveSetup")
 
@@ -393,7 +370,6 @@ class SDC_DlgControl(QDialog):
             if sNewFilePath.endswith(".csv"):
                 self.vSaveSeqFile(sNewFilePath, True)
 
-    # DONE
     def slHwSettings(self):
         logging.debug("SDC_DlgControl::slHwSettings")
         poDevice = self.m_poControl.poGetHwCtrlObj().poGetCurrentDevice()
@@ -401,7 +377,6 @@ class SDC_DlgControl(QDialog):
             oDialog = SDC_DlgHwSettings(poDevice)
             oDialog.exec()
 
-    # DONE
     def slSettings(self):
         logging.debug("SDC_DlgControl::slSettings")
         oDialog = SDC_DlgSettings()
@@ -417,7 +392,6 @@ class SDC_DlgControl(QDialog):
                 poCoreDialog.vSetFlags(dwFlags)
             self.vResizeDialog()
 
-    # DONE
     def slStart(self):
         logging.debug("SDC_DlgControl::slStart")
         if self.poButtonStart.eGetType() == SDC_PushButton.type.START:
@@ -430,19 +404,16 @@ class SDC_DlgControl(QDialog):
             self.m_poStatusThread.vStop()
     
     #void slAddTableRows   ();
-    # DONE
     def slAddTableRows(self):
         logging.debug("SDC_DlgControl::slAddTableRows")
         self.vPrgTableAddRows(self.poSpinBoxAddTableRows.value())
 
     #void slClearTable     ();
-    # DONE
     def slClearTable(self):
         logging.debug("SDC_DlgControl::slClearTable")
         self.vClearPrgTable()
 
     #void slWriteToQueue   ();
-    # DONE
     def slWriteToQueue(self):
         logging.debug("SDC_DlgControl::slWriteToQueue")
         self.vUpdateCmdListFromTable()
@@ -452,7 +423,6 @@ class SDC_DlgControl(QDialog):
         self.vUpdateQueueStatus()
 
     #void slButtonExamples ();
-    # DONE
     def slButtonExamples(self):
         logging.debug("SDC_DlgControl::slButtonExamples")
         oPos = self.ui.poButtonExamples.mapToGlobal(QPoint(0, 0))
@@ -460,12 +430,10 @@ class SDC_DlgControl(QDialog):
         self.m_poExampleMenu.exec(oPos)
 
     #void slLoadExample    (const QString&);
-    # DONE
     def slLoadExample(self, sFilePath : str):
         logging.debug("SDC_DlgControl::slLoadExample")
         self.vLoadSeqFile(sFilePath, False)
 
-    # DONE
     def slTimeoutResize(self):
         logging.debug("SDC_DlgControl::slTimeoutResize")
         if not self.isMaximized():
@@ -485,7 +453,6 @@ class SDC_DlgControl(QDialog):
 
             self.setGeometry(oRectDlgMain)
 
-    # DONE
     def vInitGUI(self):
         logging.debug("SDC_DlgControl::vInitGUI")
         # set tool button icons
@@ -546,7 +513,6 @@ class SDC_DlgControl(QDialog):
             self.poListWidgetRegs.setSelectionMode(QAbstractItemView.NoSelection)
             self.poListWidgetRegs.setEnabled(False)
 
-    # DONE
     def bInitControl(self) -> bool:
         logging.debug("SDC_DlgControl::bInitControl")
         oStrDeviceNames = self.m_poControl.oInit()
@@ -563,7 +529,6 @@ class SDC_DlgControl(QDialog):
         return True
     
     # void vInitM4i66xx ();
-    # DONE
     def vInitM4i66xx(self):
         logging.debug("SDC_DlgControl::vInitM4i66xx")
         self.poLabelNumChannels.setHidden(True)
@@ -594,13 +559,11 @@ class SDC_DlgControl(QDialog):
         self.vResizeDialog()
 
     # void vInitM4i96xx ();
-    # DONE
     def vInitM4i96xx(self):
         logging.debug("SDC_DlgControl::vInitM4i96xx")
         self.vInitM4i66xx()
 
     # void vInitM2p65xx ();
-    # DONE
     def vInitM2p65xx(self):
         logging.debug("SDC_DlgControl::vInitM2p65xx")
         self.ui.poLabelNumChannels.setHidden(False)
@@ -621,7 +584,6 @@ class SDC_DlgControl(QDialog):
         
 
     # void vInitM5i63xx ();
-    # DONE
     def vInitM5i63xx(self):
         logging.debug("SDC_DlgControl::vInitM5i63xx")
         self.ui.poLabelNumChannels.setHidden(False)
@@ -643,7 +605,6 @@ class SDC_DlgControl(QDialog):
             self.vSelectNumChM5i63xx(lChNum)
 
     # void vInitComboBoxChannels (int lNumChannels);
-    # DONE
     def vInitComboBoxChannels(self, lNumChannels : int):
         logging.debug("SDC_DlgControl::vInitComboBoxChannels")
         self.ui.poComboBoxNumChannels.currentIndexChanged.disconnect(self.slNumChannelsChanged)
@@ -663,7 +624,6 @@ class SDC_DlgControl(QDialog):
         self.ui.poComboBoxNumChannels.currentIndexChanged.connect(self.slNumChannelsChanged)
 
     # void vInitComboBoxShowChannels (int lNumChannels);
-    # DONE
     def vInitComboBoxShowChannels(self, lNumChannels : int):
         logging.debug("SDC_DlgControl::vInitComboBoxShowChannels")
         self.ui.poComboBoxShowChannels.clear()
@@ -680,7 +640,6 @@ class SDC_DlgControl(QDialog):
             self.ui.poComboBoxShowChannels.setHidden(True)
 
     # void vSetShowNumCoresSpinBox (int lMin, int lMax, int lValue);
-    # DONE
     def vSetShowNumCoresSpinBox(self, lMin : int, lMax : int, lValue : int):
         logging.debug("SDC_DlgControl::vSetShowNumCoresSpinBox")
         self.ui.poSpinBoxShowNumCores.setMinimum(lMin)
@@ -692,7 +651,6 @@ class SDC_DlgControl(QDialog):
             self.ui.poSpinBoxShowNumCores.setValue(lMax)
 
     # void vSelectNumChM2p65xx (int lNumCh);
-    # DONE
     def vSelectNumChM2p65xx(self, lNumCh : int):
         logging.debug("SDC_DlgControl::vSelectNumChM2p65xx")
         self.vResetCoreDialogs()
@@ -725,7 +683,6 @@ class SDC_DlgControl(QDialog):
         self.vInitComboBoxShowChannels(lNumCh)
 
     # void vSelectNumChM5i63xx (int lNumCh);
-    # DONE
     def vSelectNumChM5i63xx(self, lNumCh : int):
         logging.debug("SDC_DlgControl::vSelectNumChM5i63xx")
         self.ui.poComboBoxSamplingrate.currentIndexChanged.disconnect(self.slSamplingrateChanged)
@@ -745,7 +702,6 @@ class SDC_DlgControl(QDialog):
         self.vSetCoresChM5i63xx()
 
     # void vSetCoresChM5i63xx ();
-    # DONE
     def vSetCoresChM5i63xx(self):
         logging.debug("SDC_DlgControl::vSetCoresChM5i63xx")
         self.vResetCoreDialogs()
@@ -792,7 +748,6 @@ class SDC_DlgControl(QDialog):
         self.vInitComboBoxShowChannels(lNumCh)
 
     # void vSetGuiMode (SDC_GuiMode::MODE eMode);
-    # DONE
     def vSetGuiMode(self, eMode):
         logging.debug("SDC_DlgControl::vSetGuiMode")
         poNewGuiMode = self.m_poSettings.poGetGuiMode(eMode)
@@ -815,18 +770,16 @@ class SDC_DlgControl(QDialog):
 
         self.ui.poStackedWidget.setCurrentIndex(poNewGuiMode.lGetWidgetIndex())
 
-        self.ui.setGeometry(poNewGuiMode.oGetGeometry())
+        # self.ui.setGeometry(poNewGuiMode.oGetGeometry()) # TODO this moves the window to a specific screen
         self.ui.setWindowState(poNewGuiMode.eGetWindowState())
 
         self.m_poCurrentGuiMode = poNewGuiMode
 
-    # DONE
     def vResizeDialog(self):
         logging.debug("SDC_DlgControl::vResizeDialog")
         self.m_poTimerResize.start(100)
     
     # void vUpdateShowCoresFilter ();
-    # DONE
     def vUpdateShowCoresFilter(self):
         logging.debug("SDC_DlgControl::vUpdateShowCoresFilter")
         lNumActiveChannels = self.ui.poComboBoxNumChannels.currentData()
@@ -858,7 +811,6 @@ class SDC_DlgControl(QDialog):
         self.m_poSettings.vSetNumShowCores(lShowNumCores)
 
     # void vUpdateCmdListFromTable ();
-    # DONE
     def vUpdateCmdListFromTable(self):
         logging.debug("SDC_DlgControl::vUpdateCmdListFromTable")
 
@@ -904,7 +856,6 @@ class SDC_DlgControl(QDialog):
             self.m_voCmdList.append(oDrvCmd)
        
     # void vUpdateQueueStatus ();
-    # DONE
     def vUpdateQueueStatus(self):
         logging.debug("SDC_DlgControl::vUpdateQueueStatus")
         self.m_voCmdList.clear()
@@ -948,7 +899,6 @@ class SDC_DlgControl(QDialog):
 
             self.m_voCmdList.append(oDrvCmd)
 
-    # DONE
     def bStartHw(self) -> bool:
         logging.debug("SDC_DlgControl::bStartHw")
 
@@ -987,12 +937,10 @@ class SDC_DlgControl(QDialog):
         
         return True
     
-    # DONE
     def vStopHw(self):
         logging.debug("SDC_DlgControl::vStopHw")
         self.m_poHwControl.vStop()
 
-    # DONE
     def vResetCoreDialogs(self):
         logging.debug("SDC_DlgControl::vResetCoreDialogs")
         for core_dialog in self.m_mlpoCoreDialogs.values():
@@ -1000,7 +948,6 @@ class SDC_DlgControl(QDialog):
         self.m_mlpoCoreDialogs = {}
     
     # void vLoadSetupFile (const QString& sFilePath, bool bSavePath);
-    # DONE
     def vLoadSetupFile(self, sFilePath : str, bSavePath : bool):
         logging.debug("SDC_DlgControl::vLoadSetupFile")
         if QFile.exists (sFilePath):
@@ -1058,7 +1005,6 @@ class SDC_DlgControl(QDialog):
             self.ui.poComboBoxDevice.currentIndexChanged.connect(self.slDeviceChanged)
     
     # void vSaveSetupFile (const QString& sFilePath, bool bSavePath);
-    # DONE
     def vSaveSetupFile(self, sFilePath : str, bSavePath : bool):
         logging.debug("SDC_DlgControl::vSaveSetupFile")
         if QFile.exists(sFilePath):
@@ -1097,7 +1043,6 @@ class SDC_DlgControl(QDialog):
                 oSettings.endGroup()
 
     # void vLoadSeqFile   (const QString& sFilePath, bool bSavePath);
-    # DONE
     def vLoadSeqFile(self, sFilePath : str, bSavePath : bool):
         logging.debug("SDC_DlgControl::vLoadSeqFile")
         if bSavePath:
@@ -1108,7 +1053,6 @@ class SDC_DlgControl(QDialog):
             self.vSetPrgTableContent(voFileData)
 
     # void vSaveSeqFile   (const QString& sFilePath, bool bSavePath);
-    # DONE
     def vSaveSeqFile(self, sFilePath : str, bSavePath : bool):
         logging.debug("SDC_DlgControl::vSaveSeqFile")
         if bSavePath:
@@ -1119,7 +1063,6 @@ class SDC_DlgControl(QDialog):
             self.m_poControl.bWriteCSVFile(sFilePath, voFileData)
 
     # void vCreateExampleMenu  ();
-    # DONE
     def vCreateExampleMenu(self):
         logging.debug("SDC_DlgControl::vCreateExampleMenu")
         self.m_poExamplesMapper = QSignalMapper(self)
@@ -1148,7 +1091,6 @@ class SDC_DlgControl(QDialog):
                 poAction.triggered.connect(self.m_poExamplesMapper.map)
 
     # void vCreatePrgTable     ();
-    # DONE
     def vCreatePrgTable(self):
         logging.debug("SDC_DlgControl::vCreatePrgTable")
         self.ui.poTableWidget.setAcceptDrops(True)
@@ -1176,7 +1118,6 @@ class SDC_DlgControl(QDialog):
         self.ui.poTableWidget.horizontalHeader().resizeSection(2, 200)
 
     # void vClearPrgTable      ();
-    # DONE
     def vClearPrgTable(self):
         logging.debug("SDC_DlgControl::vClearPrgTable")
         lRows = self.ui.poTableWidget.rowCount()
@@ -1187,7 +1128,6 @@ class SDC_DlgControl(QDialog):
         self.m_poSelectedPrgTableItem = None
 
     # void vPrgTableInsertRow  (int lRow = -1);
-    # DONE
     def vPrgTableInsertRow(self, lRow : int = -1):
         logging.debug("SDC_DlgControl::vPrgTableInsertRow")
         lNewRow = 0
@@ -1204,7 +1144,6 @@ class SDC_DlgControl(QDialog):
         self.ui.poTableWidget.verticalHeader().resizeSection(lNewRow, 25)
 
     # void vPrgTableSelectRow  (int lRow, bool bSelect);
-    # DONE
     def vPrgTableSelectRow(self, lRow : int, bSelect : bool):
         logging.debug("SDC_DlgControl::vPrgTableSelectRow")
         oItemColor = None
@@ -1229,7 +1168,6 @@ class SDC_DlgControl(QDialog):
                 self.ui.poTableWidget.cellWidget(lRow, lColumn).setStyleSheet(sWidgetStyle)
 
     # void vPrgTableAddRows    (int lNumRows = 1, bool bShowProgress = false);
-    # DONE
     def vPrgTableAddRows(self, lNumRows : int = 1, bShowProgress : bool = False):
         logging.debug("SDC_DlgControl::vPrgTableAddRows")
         poDlgProgress = QProgressDialog()
@@ -1262,10 +1200,8 @@ class SDC_DlgControl(QDialog):
         self.ui.poTableWidget.verticalScrollBar().show()
 
     # void vCreatePrgTableItem (int lRow, int lColumn);
-    # DONE
     def vCreatePrgTableItem(self, lRow : int, lColumn : int):
         logging.debug("SDC_DlgControl::vCreatePrgTableItem")
-        # disconnect (ui.poTableWidget, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(slPrgTableItemChanged(QTableWidgetItem*)));
         self.ui.poTableWidget.itemChanged.disconnect(self.slPrgTableItemChanged)
 
         if lColumn == 1:
@@ -1280,7 +1216,6 @@ class SDC_DlgControl(QDialog):
         self.ui.poTableWidget.itemChanged.connect(self.slPrgTableItemChanged)
 
     # void vInitPrgTableItem   (QTableWidgetItem* poItem, int lIdx = -1);
-    # DONE
     def vInitPrgTableItem(self, poItem, lIdx : int = -1):
         logging.debug("SDC_DlgControl::vInitPrgTableItem")
         if poItem:
@@ -1306,7 +1241,6 @@ class SDC_DlgControl(QDialog):
             poItem.setFont(oFont)
 
     # void vInitPrgTableWidget (QWidget* poWidget, int lIdx);
-    # DONE
     def vInitPrgTableComboBox(self, poComboBox, lIdx : int):
         logging.debug("SDC_DlgControl::vInitPrgTableComboBox")
         # poComboBox = QComboBox(poWidget)
@@ -1328,7 +1262,6 @@ class SDC_DlgControl(QDialog):
         poComboBox.setFont(oFont)
 
     # void vSetPrgTableContent (QVector <QStringList> voTableData);
-    # DONE
     def vSetPrgTableContent(self, voTableData : list[list[str]]):
         logging.debug("SDC_DlgControl::vSetPrgTableContent")
         # QTableWidgetItem* poItem;
@@ -1383,7 +1316,6 @@ class SDC_DlgControl(QDialog):
         return pvoTableData
     
     # bool bCopyPrgTableRow  (int lRowSource, int lRowDest);
-    # DONE
     def bCopyPrgTableRow(self, lRowSource : int, lRowDest : int) -> bool:
         logging.debug("SDC_DlgControl::bCopyPrgTableRow")
         poItemSourceReg = self.ui.poTableWidget.item(lRowSource, 0)
@@ -1407,7 +1339,6 @@ class SDC_DlgControl(QDialog):
         return True
     
     # void vClearPrgTableRow (int lRow);
-    # DONE
     def vClearPrgTableRow(self, lRow : int):
         logging.debug("SDC_DlgControl::vClearPrgTableRow")
         poItemReg = self.ui.poTableWidget.item(lRow, 0)
@@ -1423,7 +1354,6 @@ class SDC_DlgControl(QDialog):
             poItemVal.setText("")
 
     # void vMoveSelectedRows (int lDestRow, bool bCopy);
-    # DONE
     def vMoveSelectedRows(self, lDestRow : int, bCopy : bool):
         logging.debug("SDC_DlgControl::vMoveSelectedRows")
         
@@ -1453,7 +1383,6 @@ class SDC_DlgControl(QDialog):
             self.vClearSelectedRows()
 
     # void vClearSelectedRows ();
-    # DONE
     def vClearSelectedRows(self):
         logging.debug("SDC_DlgControl::vClearSelectedRows")
         for lIdx in range(len(self.m_vlSelectedRows)):

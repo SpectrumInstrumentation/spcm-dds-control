@@ -4,7 +4,7 @@ from numpy import int32
 import logging
 from spcm_core import *
 
-from PyQt5.QtCore import QSettings, QThread, QMutex, QWaitCondition, qDebug, pyqtSignal
+from PyQt5.QtCore import QSettings, QThread, QMutex, QWaitCondition, pyqtSignal
 
 from settings.sdc_settings import SDC_Settings
 from settings.sdc_coresettings import SDC_Value, SDC_CoreSettings
@@ -25,26 +25,21 @@ class SDC_DrvCmd:
         self.m_lType = -1
         self.m_oValue = None
 
-    # DONE
     def __del__(self):
         logging.debug("SDC_DrvCmd::__del__")
 
-    # DONE
     def vSetRegister(self, lRegister : int):
         logging.debug("SDC_DrvCmd::vSetRegister")
         self.m_lRegister = lRegister
     
-    # DONE
     def lGetRegister(self) -> int:
         logging.debug("SDC_DrvCmd::lGetRegister")
         return self.m_lRegister
     
-    # DONE
     def vSetValue(self, oValue : object):
         logging.debug("SDC_DrvCmd::vSetValue")
         self.m_oValue = oValue
     
-    # DONE
     def oGetValue(self) -> object:
         logging.debug("SDC_DrvCmd::oGetValue")
         return self.m_oValue
@@ -59,24 +54,19 @@ class SDC_HwControl():
     m_poSettings : SDC_Settings = None
     m_poHwControlThread : 'SDC_HwControlThread' = None
     m_vpoDevices : list[SDC_SpcDevice] = []
-    # m_bHwIsRunning : bool = False
 
-    # DONE
     def __init__(self):
         logging.debug("SDC_HwControl::__init__")
         self.m_poSettings = SDC_Settings.poGetInstance()
         self.m_poDevice = None
         self.m_poHwControlThread = SDC_HwControlThread(self)
 
-        # self.m_bHwIsRunning = False
         self.m_vpoDevices = []
 
-    # DONE
     def __del__(self):
         logging.debug("SDC_HwControl::__del__")
         pass
 
-    # DONE
     def dwOpenHardware(self) -> int:
         logging.debug("SDC_HwControl::dwOpenHardware")
 
@@ -118,7 +108,6 @@ class SDC_HwControl():
 
         return len(self.m_vpoDevices)
     
-    # DONE
     def vCloseHardware(self):
         logging.debug("SDC_HwControl::vCloseHardware")
         for poDevice in self.m_vpoDevices:
@@ -126,31 +115,26 @@ class SDC_HwControl():
             del poDevice
         self.m_vpoDevices = []
 
-    # DONE
     def vSetCurrentDevice(self, dwDevIdx : int):
         logging.debug("SDC_HwControl::vSetCurrentDevice")
 
         if dwDevIdx < len(self.m_vpoDevices):
             self.m_poDevice = self.m_vpoDevices[dwDevIdx]
         
-    # DONE
     def poGetCurrentDevice(self):
         logging.debug("SDC_HwControl::poGetCurrentDevice")
         return self.m_poDevice
 
-    # DONE
     def lGetNumOfDevices(self) -> int:
         logging.debug("SDC_HwControl::lGetNumOfDevices")
         return len(self.m_vpoDevices)
 
-    # DONE
     def poGetDevice(self, dwDevIndex : int): # -> SDC_SpcDevice:
         logging.debug("SDC_HwControl::poGetDevice")
         if dwDevIndex < len(self.m_vpoDevices):
             return self.m_vpoDevices[dwDevIndex]
         raise Exception("Device #{} not found !".format(dwDevIndex))
 
-    # DONE
     def poGetDeviceByeName(self, sName : str): #-> SDC_SpcDevice
         logging.debug("SDC_HwControl::poGetDeviceByeName")
         for device in self.m_vpoDevices:
@@ -158,7 +142,6 @@ class SDC_HwControl():
                 return device
         raise Exception("Device {} not found !".format(sName))
 
-    # DONE
     def dwGetCoreInfos(self, poCoreSettings : SDC_CoreSettings):
         logging.debug("SDC_HwControl::dwGetCoreInfos")
         
@@ -206,12 +189,10 @@ class SDC_HwControl():
         poCoreSettings.vSetLimitsSet(True)
         return dwError
 
-    # DONE
     def vClearCoreConnectionsMasks(self):
         logging.debug("SDC_HwControl::vClearCoreConnectionsMasks")
         self.m_llConnectionMaskCh0 = self.m_llConnectionMaskCh1 = self.m_llConnectionMaskCh2 = self.m_llConnectionMaskCh3 = 0
 
-    # DONE
     def dwSetCoreConnections(self) -> object:
         logging.debug("SDC_HwControl::dwSetCoreConnections")
         dwError = 0
@@ -247,7 +228,6 @@ class SDC_HwControl():
         
         return dwError
 
-    # DONE
     def dwDoGeneralSetup(self) -> object:
         logging.debug("SDC_HwControl::dwDoGeneralSetup")
         dwError = 0
@@ -281,7 +261,6 @@ class SDC_HwControl():
 
         return dwError
     
-    # DONE
     def dwDoCoreSetup(self, poCoreSettings) -> object:
         logging.debug("SDC_HwControl::dwDoCoreSetup")
         dwError = 0
@@ -303,7 +282,6 @@ class SDC_HwControl():
         
         return dwError
     
-    # DONE
     def dwWriteToQueue(self, voCmdList : list, lNumLoops : int = 1) -> int:
         logging.debug("SDC_HwControl::dwWriteToQueue")
         dwError = 0
@@ -317,7 +295,6 @@ class SDC_HwControl():
             self.m_poHwControlThread.vStart()
         return dwError
     
-    # DONE
     def dwStart(self) -> int:
         logging.debug("SDC_HwControl::dwStart")
         dwError = 0
@@ -334,12 +311,10 @@ class SDC_HwControl():
 
         return dwError
     
-    # DONE
     def dwReset(self) -> int:
         logging.debug("SDC_HwControl::dwReset")
         return spcm_dwSetParam_i32(self.m_poDevice.hDevice (), SPC_DDS_CMD, SPCM_DDS_CMD_RESET)
 
-    # DONE
     def vStop(self):
         logging.debug("SDC_HwControl::vStop")
         self.m_poHwControlThread.vStop()
@@ -349,7 +324,6 @@ class SDC_HwControl():
 
         self.m_poDevice.vSetDevIsRunning(False)
 
-    # DONE
     def vStopAll(self):
         logging.debug("SDC_HwControl::vStopAll")
         self.m_poHwControlThread.vStop()
@@ -359,7 +333,6 @@ class SDC_HwControl():
                 spcm_dwSetParam_i32(self.m_vpoDevices[lDevIdx].hDevice(), SPC_M2CMD, M2CMD_CARD_STOP)
                 spcm_dwSetParam_i32(self.m_vpoDevices[lDevIdx].hDevice(), SPC_DDS_CMD, SPCM_DDS_CMD_RESET)
 
-    # DONE
     def dwSetAmplitude(self, dwCoreIndex : int, pdValue : float) -> object:
         logging.debug("SDC_HwControl::dwSetAmplitude")
         dwError = 0
@@ -373,7 +346,6 @@ class SDC_HwControl():
 
         return dwError
 
-    # DONE
     def dwSetFrequency(self, dwCoreIndex : int, pdValue : float) -> object:
         logging.debug("SDC_HwControl::dwSetFrequency")
         dwError = 0
@@ -387,7 +359,6 @@ class SDC_HwControl():
 
         return dwError
 
-    # DONE
     def dwSetPhase(self, dwCoreIndex : int, pdValue : float) -> object:
         logging.debug("SDC_HwControl::dwSetPhase")
         dwError = 0
@@ -401,17 +372,12 @@ class SDC_HwControl():
 
         return dwError
     
-    # DONE
     def sGetLastErrorText(self) -> str:
         logging.debug("SDC_HwControl::sGetLastErrorText")
-        # dwRegister = uint32(0)
-        # lValue = int32(0)
         szErrorTextBuffer = create_string_buffer(ERRORTEXTLEN)
-        # spcm_dwGetErrorInfo_i32(self.m_poDevice.hDevice(), byref(dwRegister), byref(lValue), byref(szErrorTextBuffer))
         spcm_dwGetErrorInfo_i32(self.m_poDevice.hDevice(), None, None, byref(szErrorTextBuffer))
         return szErrorTextBuffer.value.decode('utf-8')
     
-    # DONE
     def lReadQueueMax(self) -> int:
         logging.debug("SDC_HwControl::lReadQueueMax")
         lValue = c_int(0)
@@ -421,7 +387,6 @@ class SDC_HwControl():
 
         return -1
     
-    # DONE
     def lReadQueueCount(self) -> int:
         logging.debug("SDC_HwControl::lReadQueueCount")
         lValue = c_int(0)
@@ -431,7 +396,6 @@ class SDC_HwControl():
 
         return -1
     
-    # DONE
     def lReadQueueInSW(self) -> int:
         logging.debug("SDC_HwControl::lReadQueueInSW")
         lValue = c_int(0)
@@ -441,7 +405,6 @@ class SDC_HwControl():
 
         return -1
 
-    # DONE
     def bIsDeviceDDS(self, hDevice) -> bool:
         logging.debug("SDC_HwControl::bIsDeviceDDS")
         lFncType = c_int(0)
@@ -456,12 +419,9 @@ class SDC_HwControl():
 
         return False
 
-    # DONE
     def poOpenDevice(self, sDeviceString : str) -> SDC_SpcDevice:
         logging.debug("SDC_HwControl::poOpenDevice")
         poDevice = None
-
-        bAbort = False
 
         bRemote = False
         if sDeviceString.startswith ("TCPIP::"):
@@ -474,12 +434,9 @@ class SDC_HwControl():
                 poDevice = self.poCreateDevice(hDevice, bRemote)
             else:
                 spcm_vClose(hDevice)
-        else:
-            bAbort = True
 
         return poDevice
 
-    # DONE
     def poCreateDevice(self, hDevice, bRemote : bool = False):
         logging.debug("SDC_HwControl::poCreateDevice")
         lCardType = c_int(0)
@@ -491,7 +448,6 @@ class SDC_HwControl():
         if (TYP_SERIESMASK | TYP_FAMILYMASK) & lCardType.value == TYP_M4I96XX_X8:  return SDC_SpcDevM4i96xx(hDevice, bRemote)
         if (TYP_SERIESMASK | TYP_FAMILYMASK) & lCardType.value == TYP_M5I63XX_X16: return SDC_SpcDevM5i63xx(hDevice, bRemote)
     
-    # DONE
     def dwWriteCmdList(self, pvoCmdList : list[SDC_DrvCmd]) -> int:
         logging.debug("SDC_HwControl::dwWriteCmdList")
         
@@ -509,7 +465,6 @@ class SDC_HwControl():
             
         return spcm_dwSetParam_ptr (self.m_poDevice.hDevice(), SPC_REGISTER_LIST, pstDDSParamList, len(pvoCmdList) * ctypes.sizeof(ST_LIST_PARAM))
     
-    # DONE
     def dwExecCmdList(self, pvoCmdList : list) -> int:
         logging.debug("SDC_HwControl::dwExecCmdList")
         dwError = spcm_dwSetParam_i32(self.m_poDevice.hDevice(), SPC_DDS_CMD, SPCM_DDS_CMD_EXEC_NOW)
@@ -529,7 +484,6 @@ class SDC_HwControlThread(QThread):
     m_poHwControl : "SDC_HwControl" = None
     m_voCmdList : list = []
 
-    # DONE
     def __init__(self, poHwControl : SDC_HwControl):
         logging.debug("SDC_HwControlThread::__init__")
         self.m_poHwControl = poHwControl
@@ -538,27 +492,23 @@ class SDC_HwControlThread(QThread):
         self.m_lNumLoops = 0
         self.m_voCmdList = []
     
-    # DONE
     def __del__(self):
         logging.debug("SDC_HwControlThread::__del__")
 
-    # DONE
+    
     def vStart(self):
         logging.debug("SDC_HwControlThread::vStart")
         self.start()
-        
-    # DONE
+    
     def vStop(self):
         logging.debug("SDC_HwControlThread::vStop")
         self.m_bStop = True
     
-    # DONE
     def vAddCmdList(self, voCmdList : list[SDC_DrvCmd], lNumLoops : int):
         logging.debug("SDC_HwControlThread::vAddCmdList")
         self.m_voCmdList = voCmdList
         self.m_lNumLoops = lNumLoops
     
-    # DONE
     def run(self):
         logging.debug("SDC_HwControlThread::run")
         lQueueCount = lQueueMax = 0
@@ -586,7 +536,6 @@ class SDC_HwStatusThread(QThread):
     m_poMutex : QMutex = None
     m_poWaitCondition : QWaitCondition = None
 
-    # DONE
     def __init__(self, poHwControl : "SDC_HwControl"):
         logging.debug("SDC_HwStatusThread::__init__")
         super().__init__()
@@ -597,18 +546,15 @@ class SDC_HwStatusThread(QThread):
         self.m_poMutex = QMutex()
         self.m_poWaitCondition = QWaitCondition()
     
-    # DONE
     def __del__(self):
         logging.debug("SDC_HwStatusThread::__del__")
         del self.m_poMutex
         del self.m_poWaitCondition
 
-    # DONE
     def bIsRunning(self) -> bool:
         logging.debug("SDC_HwStatusThread::bIsRunning")
         return self.m_bRunning
     
-    # DONE
     def vStart(self):
         logging.debug("SDC_HwStatusThread::vStart")
         self.m_bRunning = True
@@ -618,19 +564,16 @@ class SDC_HwStatusThread(QThread):
         else:
             self.start()
     
-    # DONE
     def vStop(self):
         logging.debug("SDC_HwStatusThread::vStop")
         self.m_bRunning = False
     
-    # DONE
     def vEnd(self):
         logging.debug("SDC_HwStatusThread::vEnd")
         self.m_bEnd = True
         self.m_bRunning = False
         self.m_poWaitCondition.wakeAll()
     
-    # DONE
     def run(self):
         logging.debug("SDC_HwStatusThread::run")
         lQueueCount = lQueueInSW = 0

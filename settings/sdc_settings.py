@@ -34,39 +34,32 @@ class SDC_GuiMode:
     m_oGeometry : QRect = None
     m_eWindowState : Qt.WindowStates = None
 
-    # DONE
     def __init__(self, eMode : MODE, lWidgetIndex : int):
         logging.debug("SDC_GuiMode::__init__")
         self.m_eMode = eMode
         self.m_lWidgetIndex = lWidgetIndex
         self.m_eWindowState = Qt.WindowNoState
     
-    # DONE
     def eGetMode(self) -> MODE:
         logging.debug("SDC_GuiMode::eGetMode")
         return self.m_eMode
     
-    # DONE
     def lGetWidgetIndex(self) -> int:
         logging.debug("SDC_GuiMode::lGetWidgetIndex")
         return self.m_lWidgetIndex
     
-    # DONE
     def vSetWindowState(self, eWindowState : Qt.WindowStates):
         logging.debug("SDC_GuiMode::vSetWindowState")
         self.m_eWindowState = eWindowState
 
-    # DONE
     def eGetWindowState(self) -> Qt.WindowStates:
         logging.debug("SDC_GuiMode::eGetWindowState")
         return self.m_eWindowState
     
-    # DONE
     def vSetGeometry(self, oGeometry : QRect):
         logging.debug("SDC_GuiMode::vSetGeometry")
         self.m_oGeometry = oGeometry
 
-    # DONE
     def oGetGeometry(self) -> QRect:
         logging.debug("SDC_GuiMode::oGetGeometry")
         return self.m_oGeometry
@@ -74,7 +67,6 @@ class SDC_GuiMode:
 
 class SDC_Settings:
     MSBOX_TYPE : Enum = Enum('MSBOX_TYPE', ['MSB_INFO', 'MSB_WARNING', 'MSB_ERROR'])
-    # m_poSettings : object = None
 
     m_poSettings : 'SDC_Settings' = None
     m_bSaveOnExit : bool = False
@@ -91,9 +83,7 @@ class SDC_Settings:
     m_lvpoCoreSettings : dict[int, list[SDC_CoreSettings]] = {}
     m_mepoGuiModes : dict[SDC_GuiMode.MODE, SDC_GuiMode] = {}
 
-
     # Singleton function
-    # DONE
     def __new__(cls, *args, **kwargs):
         logging.debug("SDC_Settings::__new__")
         if not cls.m_poSettings:
@@ -102,7 +92,6 @@ class SDC_Settings:
             cls.m_poSettings.vInit()
         return cls.m_poSettings
     
-    # DONE
     # NOTE: the constructor is also called when __new__ returns an existing instance, hence init code should be in vInit
     def __init__(self):
         logging.debug("SDC_Settings::__init__")
@@ -141,12 +130,10 @@ class SDC_Settings:
         self.vInitExamples ()
         self.vLoadSettings()
 
-    # DONE
     def __del__(self):
         logging.debug("SDC_Settings::__del__")
         self.vSaveSettings()
 
-    # DONE
     def vLoadSettings(self):
         logging.debug("SDC_Settings::vLoadSettings")
         oSettings = QSettings(COMPANY_NAME, APP_NAME_SHORT)
@@ -162,7 +149,6 @@ class SDC_Settings:
         if oSettings.contains("NumShowCores"):
             self.m_lNumShowCores = oSettings.value("NumShowCores", 0, int)
 
-    # DONE
     def vSaveSettings(self):
         logging.debug("SDC_Settings::vSaveSettings")
         oSettings = QSettings(COMPANY_NAME, APP_NAME_SHORT)
@@ -173,7 +159,6 @@ class SDC_Settings:
         oSettings.setValue("CompactCoreDialogs", self.m_bCompactCoreDialogs)
         oSettings.setValue("NumShowCores", self.m_lNumShowCores)
     
-    # DONE
     def vInitExamples(self):
         logging.debug("SDC_Settings::vInitExamples")
         oDir = QDir(QDir.currentPath() + "/examples")
@@ -189,7 +174,6 @@ class SDC_Settings:
     
 
     # static SDC_Settings* poGetInstance ();
-    # DONE
     # NOTE the singleton instance is created in __new__
     @staticmethod
     def poGetInstance() -> 'SDC_Settings':
@@ -197,38 +181,33 @@ class SDC_Settings:
         return SDC_Settings()
 
     # static void vDestroy ();
-    # DONE
     @classmethod
     def vDestroy(cls):
         logging.debug("SDC_Settings::vDestroy")
         del cls.m_poSettings
 
     # QString sGetAppTitle ();
-    # DONE
     def sGetAppTitle(self) -> str:
         logging.debug("SDC_Settings::sGetAppTitle")
         sAppTitle = f"{APP_NAME_LONG} v{self.m_sVersion}"
         return sAppTitle
 
     # void vSetSetupFilePath (const QString& sFilePath) { m_sSetupFilePath = sFilePath; }
-    # DONE
     def vSetSetupFilePath(self, sFilePath : str):
         logging.debug("SDC_Settings::vSetSetupFilePath")
         self.m_sSetupFilePath = sFilePath
 
     # QString sGetSetupFilePath () const { return m_sSetupFilePath; }
-    # DONE
     def sGetSetupFilePath(self) -> str:
         logging.debug("SDC_Settings::sGetSetupFilePath")
         return self.m_sSetupFilePath
 
     # void vSetSeqFilePath (const QString& sFilePath) { m_sSeqFilePath = sFilePath; }
-    # DONE
     def vSetSeqFilePath(self, sFilePath : str):
         logging.debug("SDC_Settings::vSetSeqFilePath")
         self.m_sSeqFilePath = sFilePath
+
     # QString sGetSeqFilePath () const { return m_sSeqFilePath; }
-    # DONE
     def sGetSeqFilePath(self) -> str:
         logging.debug("SDC_Settings::sGetSeqFilePath")
         return self.m_sSeqFilePath
@@ -239,7 +218,6 @@ class SDC_Settings:
         return self.m_sInternalSetupFilePath
 
     # QString sGetRegisterFilePath () const { return m_sRegisterFilePath; }
-    # DONE
     def sGetRegisterFilePath(self) -> str:
         logging.debug("SDC_Settings::sGetRegisterFilePath")
         return self.m_sRegisterFilePath
@@ -255,31 +233,26 @@ class SDC_Settings:
         return self.m_bSaveOnExit
 
     # void vSetCompactCoreDialogs (bool bState) { m_bCompactCoreDialogs = bState; }
-    # DONE
     def vSetCompactCoreDialogs(self, bState : bool):
         logging.debug("SDC_Settings::vSetCompactCoreDialogs({})".format(bState))
         self.m_bCompactCoreDialogs = bState
 
     # bool bCompactCoreDialogs () { return m_bCompactCoreDialogs; }
-    # DONE
     def bCompactCoreDialogs(self) -> bool:
         logging.debug("SDC_Settings::bCompactCoreDialogs")
         return self.m_bCompactCoreDialogs
 
     # void vSetNumShowCores (int lNumShowCores) { m_lNumShowCores = lNumShowCores; }
-    # DONE
     def vSetNumShowCores(self, lNumShowCores : int):
         logging.debug("SDC_Settings::vSetNumShowCores({})".format(lNumShowCores))
         self.m_lNumShowCores = lNumShowCores
 
     # int lGetNumShowCores () { return m_lNumShowCores; }
-    # DONE
     def lGetNumShowCores(self) -> int:
         logging.debug("SDC_Settings::lGetNumShowCores")
         return self.m_lNumShowCores
 
     # void vAddCoreSetting (int lSerialNumber, SDC_CoreSettings* poCoreSetting);
-    # DONE
     def vAddCoreSetting(self, lSerialNumber : int, poCoreSetting : SDC_CoreSettings):
         logging.debug("SDC_Settings::vAddCoreSetting")
         if not (lSerialNumber in self.m_lvpoCoreSettings):
@@ -287,7 +260,6 @@ class SDC_Settings:
         self.m_lvpoCoreSettings[lSerialNumber].append(poCoreSetting)
 
     # void vRemoveSetting  (int lSerialNumber, int lSetupID);
-    # DONE
     def vRemoveSetting(self, lSerialNumber : int, lSetupID : int):
         logging.debug("SDC_Settings::vRemoveSetting")
         if lSerialNumber in self.m_lvpoCoreSettings:
@@ -296,7 +268,6 @@ class SDC_Settings:
                     self.m_lvpoCoreSettings[lSerialNumber].pop(lIdx)
 
     # SDC_CoreSettings* poGetCoreSetting (int lSerialNumber, int lSetupID);
-    # DONE
     def poGetCoreSetting(self, lSerialNumber : int, lSetupID : int) -> SDC_CoreSettings:
         logging.debug("SDC_Settings::poGetCoreSetting")
         if lSerialNumber in self.m_lvpoCoreSettings:
@@ -307,7 +278,6 @@ class SDC_Settings:
         return None
 
     # int lGetNumCoreSettings (int lSerialNumber);
-    # DONE
     def lGetNumCoreSettings(self, lSerialNumber : int) -> int:
         logging.debug("SDC_Settings::lGetNumCoreSettings")
         if lSerialNumber in self.m_lvpoCoreSettings:
@@ -317,27 +287,25 @@ class SDC_Settings:
 
     # void vDebugPlotCoreSettings ();
     lCnt = 0 # static variable for counting calls
-    # DONE
     def vDebugPlotCoreSettings(self):
         logging.debug("SDC_Settings::vDebugPlotCoreSettings")
 
-        qDebug ("")
-        qDebug (f"***** {self.lCnt} *****")
-        qDebug ("")
+        logging.debug("")
+        logging.debug(f"***** {self.lCnt} *****")
+        logging.debug("")
 
         for lSerialNumber, vCoreSettings in self.m_lvpoCoreSettings.items():
             for lIdx in range(len(vCoreSettings)):
-                qDebug ("[{}][{}]".format(lSerialNumber, lIdx))
-                qDebug ("  SetupID: {}".format(vCoreSettings[lIdx].lGetSetupID()))
-                qDebug ("  CoreNum: {}".format(vCoreSettings[lIdx].lGetCoreNum()))
-                qDebug ("    ChNum: {}".format(vCoreSettings[lIdx].lGetChNum()))
-                qDebug ("     Ampl: {}".format(vCoreSettings[lIdx].oGetAmplitude().dGetValue()))
-                qDebug ("     Freq: {}".format(vCoreSettings[lIdx].oGetFrequency().dGetValue()))
-                qDebug ("    Phase: {}".format(vCoreSettings[lIdx].oGetPhase().dGetValue()))
+                logging.debug("[{}][{}]".format(lSerialNumber, lIdx))
+                logging.debug("  SetupID: {}".format(vCoreSettings[lIdx].lGetSetupID()))
+                logging.debug("  CoreNum: {}".format(vCoreSettings[lIdx].lGetCoreNum()))
+                logging.debug("    ChNum: {}".format(vCoreSettings[lIdx].lGetChNum()))
+                logging.debug("     Ampl: {}".format(vCoreSettings[lIdx].oGetAmplitude().dGetValue()))
+                logging.debug("     Freq: {}".format(vCoreSettings[lIdx].oGetFrequency().dGetValue()))
+                logging.debug("    Phase: {}".format(vCoreSettings[lIdx].oGetPhase().dGetValue()))
         self.lCnt += 1
 
     # SDC_GuiMode* poGetGuiMode (SDC_GuiMode::MODE eMode);
-    # DONE
     def poGetGuiMode(self, eMode : SDC_GuiMode.MODE) -> SDC_GuiMode:
         logging.debug("SDC_Settings::poGetGuiMode")
         if eMode in self.m_mepoGuiModes:
@@ -346,7 +314,6 @@ class SDC_Settings:
         return None
 
     # void vSaveCoreSettings (QSettings *poSettings);
-    # DONE
     def vSaveCoreSettings(self, poSettings : QSettings):
         logging.debug("SDC_Settings::vSaveCoreSettings")
         lSetupIdx = 0
@@ -372,7 +339,6 @@ class SDC_Settings:
             lSetupIdx += 1
 
     # void vLoadCoreSettings (QSettings* poSettings);
-    # DONE
     def vLoadCoreSettings(self, poSettings : QSettings):
         logging.debug("SDC_Settings::vLoadCoreSettings")
         lNumSetup = poSettings.value("NumSetups", 0, int)
@@ -402,7 +368,6 @@ class SDC_Settings:
             poSettings.endGroup()
 
     # QVector <QString> vsGetExamplesPaths () { return m_vsExamplesFilePaths; }
-    # DONE
     def vsGetExamplesPaths(self) -> list[str]:
         logging.debug("SDC_Settings::vsGetExamplesPaths")
         return self.m_vsExamplesFilePaths

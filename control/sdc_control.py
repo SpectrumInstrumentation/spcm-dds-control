@@ -1,4 +1,3 @@
-### DONE
 from PyQt5.QtCore import QObject, pyqtSignal
 from pathlib import Path
 from numpy import int32
@@ -78,15 +77,6 @@ class SDC_Control(QObject):
     def oGetStrListRegisterNames(self) -> list[str]:
         logging.debug("SDC_Control::oGetStrListRegisterNames")
         return self.m_oRegisterNames
-    
-    ##### Why are they still defined in the header file? #####
-    # def vStart(self, IDevIdx : int, vpoCoreSettings):
-    #     logging.debug("SDC_Control::vStart")
-    
-    # def vGetCoreInfos(self, poCoreSerrings):
-    #     logging.debug("SDC_Control::vGetCoreInfos")
-    ##########################################################
-
 
     def bReadCSVFile(self, sFilePath: str) -> list[str]:
         logging.debug(f"SDC_Control::bReadCSVFile({sFilePath})")

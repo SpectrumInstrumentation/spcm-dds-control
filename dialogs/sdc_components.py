@@ -3,7 +3,7 @@ import logging
 
 from PyQt5.QtWidgets import QDial, QToolButton, QPushButton
 from PyQt5.QtGui import QIcon, QCursor
-from PyQt5.QtCore import Qt, QEvent, qDebug
+from PyQt5.QtCore import Qt, QEvent
 
 
 class SDC_Dial(QDial):
