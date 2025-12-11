@@ -219,7 +219,7 @@ class SDC_DlgControl(QDialog):
         oListItems = self.poListWidgetRegs.findItems(sText, Qt.MatchContains)
 
         for lIdx in range(self.poListWidgetRegs.count()):
-            if oListItems.contains(self.poListWidgetRegs.item(lIdx)):
+            if self.poListWidgetRegs.item(lIdx) in oListItems:
                 self.poListWidgetRegs.item(lIdx).setHidden(False)
             else:
                 self.poListWidgetRegs.item(lIdx).setHidden(True)
@@ -411,7 +411,8 @@ class SDC_DlgControl(QDialog):
     #void slClearTable     ();
     def slClearTable(self):
         logging.debug("SDC_DlgControl::slClearTable")
-        self.vClearPrgTable()
+        if QMessageBox.question(self, "Clear Table", "Are you sure to clear the table ?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+            self.vClearPrgTable()
 
     #void slWriteToQueue   ();
     def slWriteToQueue(self):
@@ -428,6 +429,14 @@ class SDC_DlgControl(QDialog):
         oPos = self.ui.poButtonExamples.mapToGlobal(QPoint(0, 0))
         oPos.setY(oPos.y() + 24)
         self.m_poExampleMenu.exec(oPos)
+
+    # void SDC_DlgControl::slFilterLabelsShowOnlyDDS (bool bState)
+    def slFilterLabelsShowOnlyDDS(self, bState : bool):
+        logging.debug("SDC_DlgControl::slFilterLabelsShowOnlyDDS")
+        self.ui.poListWidgetRegs.clear()
+        self.ui.poListWidgetRegs.addItems(self.m_poControl.oGetStrListRegisterNames(bState))
+        
+        self.m_poSettings.vSetShowOnlyDDS(bState)
 
     #void slLoadExample    (const QString&);
     def slLoadExample(self, sFilePath : str):
@@ -488,6 +497,7 @@ class SDC_DlgControl(QDialog):
         self.ui.poButtonClearTable.clicked.connect(self.slClearTable)
         self.ui.poButtonWriteToQueue.clicked.connect(self.slWriteToQueue)
         self.ui.poButtonExamples.clicked.connect(self.slButtonExamples)
+        self.ui.poCheckBoxShowOnlyDDS.toggled.connect(self.slFilterLabelsShowOnlyDDS)
         self.ui.poComboBoxDevice.currentIndexChanged.connect(self.slDeviceChanged)
         self.ui.poComboBoxNumChannels.currentIndexChanged.connect(self.slNumChannelsChanged)
         self.ui.poComboBoxSamplingrate.currentIndexChanged.connect(self.slSamplingrateChanged)
@@ -507,11 +517,13 @@ class SDC_DlgControl(QDialog):
         self.poSplitter.setStretchFactor(1, 4)
 
         if self.m_poControl.bLoadRegisterFile():    
-            self.poListWidgetRegs.addItems(self.m_poControl.oGetStrListRegisterNames())
+            self.ui.poListWidgetRegs.addItems(self.m_poControl.oGetStrListRegisterNames(self.m_poSettings.bShowOnlyDDS()))
+            self.ui.poCheckBoxShowOnlyDDS.setChecked(self.m_poSettings.bShowOnlyDDS())
         else:
-            self.poListWidgetRegs.addItem("Register list could not be loaded.")
-            self.poListWidgetRegs.setSelectionMode(QAbstractItemView.NoSelection)
-            self.poListWidgetRegs.setEnabled(False)
+            self.ui.poListWidgetRegs.addItem("Register list could not be loaded.")
+            self.ui.poListWidgetRegs.setSelectionMode(QAbstractItemView.NoSelection)
+            self.ui.poListWidgetRegs.setEnabled(False)
+            self.ui.poCheckBoxShowOnlyDDS.setHidden(True)
 
     def bInitControl(self) -> bool:
         logging.debug("SDC_DlgControl::bInitControl")
@@ -1299,9 +1311,6 @@ class SDC_DlgControl(QDialog):
         pvoTableData = []
 
         for lRow in range(self.ui.poTableWidget.rowCount()):
-            if not self.ui.poTableWidget.item(lRow, 0).text():
-                break
-
             oStrList = []
             oStrList.append(self.ui.poTableWidget.item(lRow, 0).text())
             

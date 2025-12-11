@@ -11,7 +11,8 @@ class SDC_Control(QObject):
     sigShowMessage = pyqtSignal(SDC_Settings.MSBOX_TYPE, str, str)
     m_poSettings : SDC_Settings = None
     m_poHwControl : SDC_HwControl = None
-    m_oRegisterNames : list[str] = []
+    m_oRegisterNamesAll : list[str] = []
+    m_oRegisterNamesDDS : list[str] = []
     m_mslRegisterMap : dict[str, int] = {}
 
     def __init__(self):
@@ -19,7 +20,8 @@ class SDC_Control(QObject):
         super().__init__()
         self.m_poSettings = SDC_Settings.poGetInstance()
         self.m_poHwControl = SDC_HwControl()
-        self.m_oRegisterNames : list[str] = []
+        self.m_oRegisterNamesAll : list[str] = []
+        self.m_oRegisterNamesDDS : list[str] = []
         self.m_mslRegisterMap : dict[str, int] = {}
 
     def __delete__(self):
@@ -54,7 +56,8 @@ class SDC_Control(QObject):
         if not voFileData:
             return False
 
-        self.m_oRegisterNames.clear()
+        self.m_oRegisterNamesAll.clear()
+        self.m_oRegisterNamesDDS.clear()
         self.m_mslRegisterMap.clear()
 
         for lIdx in range(len(voFileData)):
@@ -62,7 +65,10 @@ class SDC_Control(QObject):
                 sRegister = voFileData[lIdx][0]
                 lValue = int(voFileData[lIdx][1])
 
-                self.m_oRegisterNames.append(sRegister)
+                if sRegister.startswith("SPC_DDS") or sRegister.startswith("SPCM_DDS"):
+                    self.m_oRegisterNamesDDS.append(sRegister)
+
+                self.m_oRegisterNamesAll.append(sRegister)
                 self.m_mslRegisterMap[sRegister] = lValue
 
         return True
@@ -73,10 +79,14 @@ class SDC_Control(QObject):
             return self.m_mslRegisterMap[sRegisterName]
 
         return -1
-
-    def oGetStrListRegisterNames(self) -> list[str]:
+    
+    # QStringList SDC_Control::oGetStrListRegisterNames (bool bOnlyDDS)
+    def oGetStrListRegisterNames(self, bOnlyDDS: bool) -> list[str]:
         logging.debug("SDC_Control::oGetStrListRegisterNames")
-        return self.m_oRegisterNames
+        if bOnlyDDS:
+            return self.m_oRegisterNamesDDS
+        else:
+            return self.m_oRegisterNamesAll
 
     def bReadCSVFile(self, sFilePath: str) -> list[str]:
         logging.debug(f"SDC_Control::bReadCSVFile({sFilePath})")

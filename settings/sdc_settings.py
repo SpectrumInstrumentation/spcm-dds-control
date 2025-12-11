@@ -71,6 +71,7 @@ class SDC_Settings:
     m_poSettings : 'SDC_Settings' = None
     m_bSaveOnExit : bool = False
     m_bCompactCoreDialogs : bool = False
+    m_bShowOnlyDDS : bool = False
     m_lNumShowCores : int = 0
 
     m_sVersion : str = __version__
@@ -101,6 +102,7 @@ class SDC_Settings:
         logging.debug("SDC_Settings::vInit")
         self.m_bSaveOnExit = True
         self.m_bCompactCoreDialogs = False
+        self.m_bShowOnlyDDS = False
         self.m_lNumShowCores = 4
 
         # create DDS-Control folder in user directory
@@ -146,6 +148,8 @@ class SDC_Settings:
             self.m_bSaveOnExit = oSettings.value("SaveOnExit", False, bool)
         if oSettings.contains("CompactCoreDialogs"):
             self.m_bCompactCoreDialogs = oSettings.value("CompactCoreDialogs", False, bool)
+        if oSettings.contains("ShowOnlyDDS"):
+            self.m_bShowOnlyDDS = oSettings.value("ShowOnlyDDS", False, bool)
         if oSettings.contains("NumShowCores"):
             self.m_lNumShowCores = oSettings.value("NumShowCores", 0, int)
 
@@ -157,6 +161,7 @@ class SDC_Settings:
         oSettings.setValue("SeqFile", self.m_sSeqFilePath)
         oSettings.setValue("SaveOnExit", self.m_bSaveOnExit)
         oSettings.setValue("CompactCoreDialogs", self.m_bCompactCoreDialogs)
+        oSettings.setValue("ShowOnlyDDS", self.m_bShowOnlyDDS)
         oSettings.setValue("NumShowCores", self.m_lNumShowCores)
     
     def vInitExamples(self):
@@ -241,6 +246,15 @@ class SDC_Settings:
     def bCompactCoreDialogs(self) -> bool:
         logging.debug("SDC_Settings::bCompactCoreDialogs")
         return self.m_bCompactCoreDialogs
+    
+    # void vSetShowOnlyDDS (bool bState) { m_bShowOnlyDDS = bState; }
+    def vSetShowOnlyDDS(self, bState : bool):
+        logging.debug("SDC_Settings::vSetShowOnlyDDS({})".format(bState))
+        self.m_bShowOnlyDDS = bState
+    # bool bShowOnlyDDS () { return m_bShowOnlyDDS; }
+    def bShowOnlyDDS(self) -> bool:
+        logging.debug("SDC_Settings::bShowOnlyDDS")
+        return self.m_bShowOnlyDDS
 
     # void vSetNumShowCores (int lNumShowCores) { m_lNumShowCores = lNumShowCores; }
     def vSetNumShowCores(self, lNumShowCores : int):
